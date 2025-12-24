@@ -6,6 +6,7 @@ import Dashboard from '@/components/Dashboard';
 import ClientsList from '@/components/ClientsList';
 import ReceiptsList from '@/components/ReceiptsList';
 import SettingsPage from '@/components/SettingsPage';
+import NotificationCenter from '@/components/NotificationCenter';
 import AddClientModal from '@/components/AddClientModal';
 import ClientDetailModal from '@/components/ClientDetailModal';
 import ReceiptModal from '@/components/ReceiptModal';
@@ -95,6 +96,8 @@ const Index = () => {
             onClientClick={setSelectedClient}
           />
         );
+      case 'notifications':
+        return <NotificationCenter clients={clients} />;
       case 'receipts':
         return (
           <ReceiptsList 
