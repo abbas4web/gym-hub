@@ -1,13 +1,16 @@
-import { Dumbbell, Bell, Shield, HelpCircle, LogOut, ChevronRight, Moon, Smartphone } from 'lucide-react';
+import { Dumbbell, Bell, Shield, HelpCircle, LogOut, ChevronRight, Moon, Sun, Smartphone } from 'lucide-react';
 import { Button } from './ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from 'next-themes';
+import { Switch } from './ui/switch';
 
 const SettingsPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -22,7 +25,6 @@ const SettingsPage = () => {
     { icon: Dumbbell, label: 'Gym Profile', description: 'Update gym details' },
     { icon: Bell, label: 'Notifications', description: 'Manage alerts & reminders' },
     { icon: Shield, label: 'Privacy & Security', description: 'Password & data settings' },
-    { icon: Moon, label: 'Appearance', description: 'Theme preferences' },
     { icon: Smartphone, label: 'Install App', description: 'Add to home screen' },
     { icon: HelpCircle, label: 'Help & Support', description: 'FAQs & contact' },
   ];
@@ -48,6 +50,28 @@ const SettingsPage = () => {
         </div>
       </div>
 
+      {/* Theme Toggle */}
+      <div 
+        className="glass-card p-4 flex items-center gap-4 animate-slide-up"
+        style={{ animationDelay: '200ms' }}
+      >
+        <div className="p-2 bg-secondary rounded-xl">
+          {theme === 'dark' ? (
+            <Moon className="h-5 w-5 text-primary" />
+          ) : (
+            <Sun className="h-5 w-5 text-primary" />
+          )}
+        </div>
+        <div className="flex-1 text-left">
+          <p className="font-medium text-foreground">Dark Mode</p>
+          <p className="text-sm text-muted-foreground">Toggle light/dark theme</p>
+        </div>
+        <Switch
+          checked={theme === 'dark'}
+          onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+        />
+      </div>
+
       {/* Settings List */}
       <div className="space-y-2">
         {settingsItems.map((item, index) => {
@@ -56,7 +80,7 @@ const SettingsPage = () => {
             <button
               key={item.label}
               className="w-full glass-card p-4 flex items-center gap-4 hover:border-primary/50 transition-all duration-200 animate-slide-up"
-              style={{ animationDelay: `${200 + (index * 50)}ms` }}
+              style={{ animationDelay: `${250 + (index * 50)}ms` }}
             >
               <div className="p-2 bg-secondary rounded-xl">
                 <Icon className="h-5 w-5 text-primary" />
