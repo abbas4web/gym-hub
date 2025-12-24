@@ -1,7 +1,23 @@
 import { Dumbbell, Bell, Shield, HelpCircle, LogOut, ChevronRight, Moon, Smartphone } from 'lucide-react';
 import { Button } from './ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const SettingsPage = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You've been signed out successfully.",
+    });
+    navigate('/auth/login');
+  };
+
   const settingsItems = [
     { icon: Dumbbell, label: 'Gym Profile', description: 'Update gym details' },
     { icon: Bell, label: 'Notifications', description: 'Manage alerts & reminders' },
@@ -19,15 +35,15 @@ const SettingsPage = () => {
         <p className="text-muted-foreground text-sm mt-1">Manage your preferences</p>
       </div>
 
-      {/* Gym Info Card */}
+      {/* User Info Card */}
       <div className="glass-card p-5 animate-slide-up" style={{ animationDelay: '100ms' }}>
         <div className="flex items-center gap-4">
           <div className="p-4 bg-primary/20 rounded-2xl">
             <Dumbbell className="h-8 w-8 text-primary" />
           </div>
           <div>
-            <h2 className="text-xl font-bold font-heading text-foreground">FitZone Gym</h2>
-            <p className="text-muted-foreground text-sm">Premium Fitness Center</p>
+            <h2 className="text-xl font-bold font-heading text-foreground">{user?.name || 'FitZone Gym'}</h2>
+            <p className="text-muted-foreground text-sm">{user?.email || 'Premium Fitness Center'}</p>
           </div>
         </div>
       </div>
@@ -60,6 +76,7 @@ const SettingsPage = () => {
         variant="outline" 
         className="w-full h-12 border-destructive/50 text-destructive hover:bg-destructive/10 animate-slide-up"
         style={{ animationDelay: '500ms' }}
+        onClick={handleLogout}
       >
         <LogOut className="h-5 w-5 mr-2" />
         Log Out
