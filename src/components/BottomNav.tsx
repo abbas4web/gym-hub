@@ -1,4 +1,4 @@
-import { Home, Users, Receipt, Settings, Bell } from 'lucide-react';
+import { Home, Users, Receipt, Settings, Bell, BarChart3 } from 'lucide-react';
 
 interface BottomNavProps {
   activeTab: string;
@@ -9,7 +9,7 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   const navItems = [
     { id: 'dashboard', icon: Home, label: 'Home' },
     { id: 'clients', icon: Users, label: 'Clients' },
-    { id: 'notifications', icon: Bell, label: 'Notify' },
+    { id: 'analytics', icon: BarChart3, label: 'Analytics' },
     { id: 'receipts', icon: Receipt, label: 'Receipts' },
     { id: 'settings', icon: Settings, label: 'Settings' },
   ];

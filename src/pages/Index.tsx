@@ -8,6 +8,7 @@ import ReceiptsList from '@/components/ReceiptsList';
 import SettingsPage from '@/components/SettingsPage';
 import NotificationCenter from '@/components/NotificationCenter';
 import SubscriptionPage from '@/components/SubscriptionPage';
+import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 import AddClientModal from '@/components/AddClientModal';
 import ClientDetailModal from '@/components/ClientDetailModal';
 import RenewMembershipModal from '@/components/RenewMembershipModal';
@@ -161,6 +162,8 @@ const Index = () => {
         );
       case 'notifications':
         return <NotificationCenter clients={clients} />;
+      case 'analytics':
+        return <AnalyticsDashboard clients={clients} receipts={receipts} />;
       case 'receipts':
         return (
           <ReceiptsList 
