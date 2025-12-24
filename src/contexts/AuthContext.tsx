@@ -4,9 +4,9 @@ import { User, getCurrentUser, login as authLogin, signup as authSignup, logout 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => { user?: User; error?: string };
-  signup: (name: string, email: string, password: string) => { user?: User; error?: string };
-  logout: () => void;
+  login: (email: string, password: string) => Promise<{ user?: User; error?: string }>;
+  signup: (name: string, email: string, password: string) => Promise<{ user?: User; error?: string }>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,29 +16,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = getCurrentUser();
-    setUser(storedUser);
-    setIsLoading(false);
+    const initAuth = async () => {
+      const storedUser = await getCurrentUser();
+      setUser(storedUser);
+      setIsLoading(false);
+    };
+    initAuth();
   }, []);
 
-  const login = (email: string, password: string) => {
-    const result = authLogin(email, password);
+  const login = async (email: string, password: string) => {
+    const result = await authLogin(email, password);
     if (result.user) {
       setUser(result.user);
     }
     return result;
   };
 
-  const signup = (name: string, email: string, password: string) => {
-    const result = authSignup(name, email, password);
+  const signup = async (name: string, email: string, password: string) => {
+    const result = await authSignup(name, email, password);
     if (result.user) {
       setUser(result.user);
     }
     return result;
   };
 
-  const logout = () => {
-    authLogout();
+  const logout = async () => {
+    await authLogout();
     setUser(null);
   };
 
