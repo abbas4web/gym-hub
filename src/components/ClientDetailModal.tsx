@@ -1,7 +1,7 @@
 import { Client, Receipt } from '@/types/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Phone, Mail, Calendar, CreditCard, Receipt as ReceiptIcon, User, Trash2 } from 'lucide-react';
+import { Phone, Mail, Calendar, CreditCard, Receipt as ReceiptIcon, User, Trash2, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface ClientDetailModalProps {
@@ -10,9 +10,10 @@ interface ClientDetailModalProps {
   onClose: () => void;
   onGenerateReceipt: (client: Client) => void;
   onDelete: (clientId: string) => void;
+  onRenew: (client: Client) => void;
 }
 
-const ClientDetailModal = ({ client, isOpen, onClose, onGenerateReceipt, onDelete }: ClientDetailModalProps) => {
+const ClientDetailModal = ({ client, isOpen, onClose, onGenerateReceipt, onDelete, onRenew }: ClientDetailModalProps) => {
   if (!client) return null;
 
   const isExpired = new Date(client.endDate) < new Date();
@@ -97,24 +98,34 @@ const ClientDetailModal = ({ client, isOpen, onClose, onGenerateReceipt, onDelet
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3">
+          <div className="space-y-3">
+            <div className="flex gap-3">
+              <Button 
+                variant="outline"
+                className="flex-1"
+                onClick={() => onGenerateReceipt(client)}
+              >
+                <ReceiptIcon className="h-4 w-4 mr-2" />
+                Receipt
+              </Button>
+              <Button 
+                className="flex-1"
+                onClick={() => onRenew(client)}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Renew
+              </Button>
+            </div>
             <Button 
               variant="destructive" 
-              className="flex-1"
+              className="w-full"
               onClick={() => {
                 onDelete(client.id);
                 onClose();
               }}
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </Button>
-            <Button 
-              className="flex-1"
-              onClick={() => onGenerateReceipt(client)}
-            >
-              <ReceiptIcon className="h-4 w-4 mr-2" />
-              Generate Receipt
+              Delete Client
             </Button>
           </div>
         </div>
