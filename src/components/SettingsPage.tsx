@@ -1,16 +1,23 @@
-import { Dumbbell, Bell, Shield, HelpCircle, LogOut, ChevronRight, Moon, Sun, Smartphone } from 'lucide-react';
+import { Dumbbell, Bell, Shield, HelpCircle, LogOut, ChevronRight, Moon, Sun, Smartphone, Crown } from 'lucide-react';
 import { Button } from './ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from 'next-themes';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { Switch } from './ui/switch';
+import { Badge } from './ui/badge';
 
-const SettingsPage = () => {
+interface SettingsPageProps {
+  onUpgrade: () => void;
+}
+
+const SettingsPage = ({ onUpgrade }: SettingsPageProps) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+  const { currentPlan } = useSubscription();
 
   const handleLogout = () => {
     logout();
@@ -49,6 +56,25 @@ const SettingsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Subscription Card */}
+      <button
+        onClick={onUpgrade}
+        className="w-full glass-card p-4 flex items-center gap-4 hover:border-primary/50 transition-all duration-200 animate-slide-up"
+        style={{ animationDelay: '150ms' }}
+      >
+        <div className="p-2 bg-primary/20 rounded-xl">
+          <Crown className="h-5 w-5 text-primary" />
+        </div>
+        <div className="flex-1 text-left">
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-foreground">Subscription</p>
+            <Badge variant="secondary" className="text-xs">{currentPlan.name}</Badge>
+          </div>
+          <p className="text-sm text-muted-foreground">Manage your plan & billing</p>
+        </div>
+        <ChevronRight className="h-5 w-5 text-muted-foreground" />
+      </button>
 
       {/* Theme Toggle */}
       <div 

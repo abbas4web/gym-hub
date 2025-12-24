@@ -7,11 +7,14 @@ import ClientsList from '@/components/ClientsList';
 import ReceiptsList from '@/components/ReceiptsList';
 import SettingsPage from '@/components/SettingsPage';
 import NotificationCenter from '@/components/NotificationCenter';
+import SubscriptionPage from '@/components/SubscriptionPage';
 import AddClientModal from '@/components/AddClientModal';
 import ClientDetailModal from '@/components/ClientDetailModal';
 import RenewMembershipModal from '@/components/RenewMembershipModal';
 import ReceiptModal from '@/components/ReceiptModal';
+import ClientLimitBanner from '@/components/ClientLimitBanner';
 import { useToast } from '@/hooks/use-toast';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { Helmet } from 'react-helmet';
 
 const Index = () => {
@@ -23,11 +26,25 @@ const Index = () => {
   const [renewClient, setRenewClient] = useState<Client | null>(null);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const { toast } = useToast();
+  const { canAddClient } = useSubscription();
 
   useEffect(() => {
     setClients(getClients());
     setReceipts(getReceipts());
   }, []);
+
+  const handleAddClientClick = () => {
+    if (!canAddClient(clients.length)) {
+      toast({
+        title: "Client Limit Reached",
+        description: "Upgrade your plan to add more clients.",
+        variant: "destructive",
+      });
+      setActiveTab('subscription');
+      return;
+    }
+    setIsAddClientOpen(true);
+  };
 
   const handleSaveClient = (client: Client) => {
     saveClient(client);
@@ -116,19 +133,31 @@ const Index = () => {
     switch (activeTab) {
       case 'dashboard':
         return (
-          <Dashboard 
-            clients={clients} 
-            onAddClient={() => setIsAddClientOpen(true)}
-            onClientClick={setSelectedClient}
-          />
+          <>
+            <ClientLimitBanner 
+              currentClientCount={clients.length} 
+              onUpgrade={() => setActiveTab('subscription')} 
+            />
+            <Dashboard 
+              clients={clients} 
+              onAddClient={handleAddClientClick}
+              onClientClick={setSelectedClient}
+            />
+          </>
         );
       case 'clients':
         return (
-          <ClientsList 
-            clients={clients}
-            onAddClient={() => setIsAddClientOpen(true)}
-            onClientClick={setSelectedClient}
-          />
+          <>
+            <ClientLimitBanner 
+              currentClientCount={clients.length} 
+              onUpgrade={() => setActiveTab('subscription')} 
+            />
+            <ClientsList 
+              clients={clients}
+              onAddClient={handleAddClientClick}
+              onClientClick={setSelectedClient}
+            />
+          </>
         );
       case 'notifications':
         return <NotificationCenter clients={clients} />;
@@ -139,8 +168,10 @@ const Index = () => {
             onReceiptClick={setSelectedReceipt}
           />
         );
+      case 'subscription':
+        return <SubscriptionPage onBack={() => setActiveTab('settings')} />;
       case 'settings':
-        return <SettingsPage />;
+        return <SettingsPage onUpgrade={() => setActiveTab('subscription')} />;
       default:
         return null;
     }
@@ -156,11 +187,13 @@ const Index = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        <main className="max-w-md mx-auto px-4 pt-6">
+        <main className="max-w-md mx-auto px-4 pt-6 space-y-4">
           {renderContent()}
         </main>
 
-        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        {activeTab !== 'subscription' && (
+          <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        )}
 
         <AddClientModal
           isOpen={isAddClientOpen}
