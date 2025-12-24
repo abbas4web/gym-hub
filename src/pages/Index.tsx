@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Client, Receipt } from '@/types/client';
+import { Client, Receipt, MembershipType } from '@/types/client';
 import { getClients, saveClient, deleteClient, getReceipts, saveReceipt } from '@/lib/clientStore';
 import BottomNav from '@/components/BottomNav';
 import Dashboard from '@/components/Dashboard';
@@ -9,6 +9,7 @@ import SettingsPage from '@/components/SettingsPage';
 import NotificationCenter from '@/components/NotificationCenter';
 import AddClientModal from '@/components/AddClientModal';
 import ClientDetailModal from '@/components/ClientDetailModal';
+import RenewMembershipModal from '@/components/RenewMembershipModal';
 import ReceiptModal from '@/components/ReceiptModal';
 import { useToast } from '@/hooks/use-toast';
 import { Helmet } from 'react-helmet';
@@ -19,6 +20,7 @@ const Index = () => {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [renewClient, setRenewClient] = useState<Client | null>(null);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const { toast } = useToast();
 
@@ -76,6 +78,38 @@ const Index = () => {
     setReceipts(getReceipts());
     setSelectedClient(null);
     setSelectedReceipt(receipt);
+  };
+
+  const handleRenewMembership = (updatedClient: Client, membershipType: MembershipType) => {
+    saveClient(updatedClient);
+    setClients(getClients());
+    
+    // Generate renewal receipt
+    const receipt: Receipt = {
+      id: Date.now().toString(),
+      clientId: updatedClient.id,
+      clientName: updatedClient.name,
+      amount: updatedClient.fee,
+      membershipType: updatedClient.membershipType,
+      startDate: updatedClient.startDate,
+      endDate: updatedClient.endDate,
+      generatedAt: new Date().toISOString(),
+    };
+    saveReceipt(receipt);
+    setReceipts(getReceipts());
+    setSelectedClient(null);
+    setRenewClient(null);
+    setSelectedReceipt(receipt);
+
+    toast({
+      title: "Membership Renewed!",
+      description: `${updatedClient.name}'s membership has been extended.`,
+    });
+  };
+
+  const handleOpenRenew = (client: Client) => {
+    setSelectedClient(null);
+    setRenewClient(client);
   };
 
   const renderContent = () => {
@@ -140,6 +174,14 @@ const Index = () => {
           onClose={() => setSelectedClient(null)}
           onGenerateReceipt={handleGenerateReceipt}
           onDelete={handleDeleteClient}
+          onRenew={handleOpenRenew}
+        />
+
+        <RenewMembershipModal
+          client={renewClient}
+          isOpen={!!renewClient}
+          onClose={() => setRenewClient(null)}
+          onRenew={handleRenewMembership}
         />
 
         <ReceiptModal
