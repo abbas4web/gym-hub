@@ -148,7 +148,9 @@ export const getMembershipTypeName = (type: MembershipType): string => {
       return 'Quarterly';
     case 'yearly':
       return 'Yearly';
+    case 'custom':
+      return 'Custom';
     default:
-      return 'Monthly';
+      return type;
   }
 };

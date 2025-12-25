@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -31,6 +31,15 @@ const SettingsScreen = ({ navigation }: any) => {
 
   const planDetails = SUBSCRIPTION_PLANS[subscription.plan];
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView className="flex-1 px-4 py-4">
@@ -39,13 +48,28 @@ const SettingsScreen = ({ navigation }: any) => {
         {/* User Profile */}
         <Card className="mb-6">
           <View className="flex-row items-center mb-4">
-            <View className="w-16 h-16 bg-primary/20 rounded-full items-center justify-center mr-4">
-              <User size={32} color="#84cc16" />
-            </View>
+            {user?.profile_image ? (
+              <Image
+                source={{ uri: user.profile_image }}
+                className="w-16 h-16 rounded-full mr-4"
+              />
+            ) : (
+              <View className="w-16 h-16 bg-primary/20 rounded-full items-center justify-center mr-4">
+                <Text className="text-primary font-bold text-xl">
+                  {getInitials(user?.name || 'U')}
+                </Text>
+              </View>
+            )}
             <View className="flex-1">
               <Text className="text-foreground font-bold text-lg">{user?.name}</Text>
               <Text className="text-muted-foreground">{user?.email}</Text>
             </View>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('EditProfile')}
+              className="bg-primary/20 px-4 py-2 rounded-lg"
+            >
+              <Text className="text-primary font-bold text-sm">Edit</Text>
+            </TouchableOpacity>
           </View>
         </Card>
 

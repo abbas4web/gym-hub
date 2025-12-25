@@ -1,4 +1,4 @@
-export type MembershipType = "monthly" | "quarterly" | "yearly";
+export type MembershipType = "monthly" | "quarterly" | "yearly" | "custom";
 
 export interface Client {
   id: string;
@@ -30,6 +30,7 @@ export interface User {
   email: string;
   name: string;
   password: string; // hashed in production
+  profile_image?: string; // base64 or URI
   createdAt: string; // ISO date
 }
 

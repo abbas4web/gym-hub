@@ -44,17 +44,18 @@ exports.getAllClients = (req, res) => {
 // Add new client
 exports.addClient = (req, res) => {
   try {
-    const { name, phone, email, photo, membershipType, startDate } = req.body;
+    const { name, phone, email, photo, membershipType, startDate, endDate: customEndDate, fee: customFee } = req.body;
 
-    console.log('Add client request:', { name, phone, email, membershipType, startDate, hasPhoto: !!photo });
+    console.log('Add client request:', { name, phone, email, membershipType, startDate, customEndDate, customFee, hasPhoto: !!photo });
 
     if (!name || !phone || !membershipType || !startDate) {
       return res.status(400).json({ success: false, error: 'Required fields missing' });
     }
 
     const clientId = uuidv4();
-    const endDate = calculateEndDate(startDate, membershipType);
-    const fee = getMembershipFee(membershipType);
+    // Use custom values if provided, otherwise calculate
+    const endDate = customEndDate || calculateEndDate(startDate, membershipType);
+    const fee = customFee !== undefined ? customFee : getMembershipFee(membershipType);
 
     // Insert client with photo
     db.run(

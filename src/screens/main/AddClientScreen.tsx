@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { useClients } from '@/contexts/ClientContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
-import { User, Mail, Phone, Calendar, Camera, Image as ImageIcon } from 'lucide-react-native';
+import { User, Mail, Phone, Calendar, Camera } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -17,7 +17,6 @@ cssInterop(Mail, { className: { target: "style" } });
 cssInterop(Phone, { className: { target: "style" } });
 cssInterop(Calendar, { className: { target: "style" } });
 cssInterop(Camera, { className: { target: "style" } });
-cssInterop(ImageIcon, { className: { target: "style" } });
 
 const AddClientScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
@@ -25,15 +24,47 @@ const AddClientScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [photo, setPhoto] = useState<string | undefined>(undefined);
   const [membershipType, setMembershipType] = useState<MembershipType>('monthly');
+  const [customDuration, setCustomDuration] = useState('');
+  const [customFee, setCustomFee] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
 
   const { addClient } = useClients();
   const { canAddClient } = useSubscription();
 
-  const startDate = new Date().toISOString();
-  const endDate = calculateEndDate(startDate, membershipType);
-  const fee = getMembershipFee(membershipType);
+  const calculateMembershipDetails = () => {
+    const startDate = new Date();
+    let endDate = new Date();
+    let fee = 0;
+
+    switch (membershipType) {
+      case 'monthly':
+        endDate.setMonth(endDate.getMonth() + 1);
+        fee = 1500;
+        break;
+      case 'quarterly':
+        endDate.setMonth(endDate.getMonth() + 3);
+        fee = 4000;
+        break;
+      case 'yearly':
+        endDate.setFullYear(endDate.getFullYear() + 1);
+        fee = 15000;
+        break;
+      case 'custom':
+        const days = parseInt(customDuration) || 0;
+        endDate.setDate(endDate.getDate() + days);
+        fee = parseFloat(customFee) || 0;
+        break;
+    }
+
+    return {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      fee,
+    };
+  };
+
+  const { startDate, endDate, fee } = calculateMembershipDetails();
 
   const requestPermissions = async () => {
     const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
@@ -106,6 +137,17 @@ const AddClientScreen = ({ navigation }: any) => {
       newErrors.email = 'Email is invalid';
     }
 
+    if (membershipType === 'custom') {
+      if (!customDuration || parseInt(customDuration) <= 0) {
+        Alert.alert('Error', 'Please enter a valid duration in days');
+        return false;
+      }
+      if (!customFee || parseFloat(customFee) <= 0) {
+        Alert.alert('Error', 'Please enter a valid fee amount');
+        return false;
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -113,7 +155,6 @@ const AddClientScreen = ({ navigation }: any) => {
   const handleAddClient = async () => {
     if (!validate()) return;
 
-    // Check subscription limit
     const canAdd = await canAddClient();
     if (!canAdd) {
       Alert.alert(
@@ -133,9 +174,11 @@ const AddClientScreen = ({ navigation }: any) => {
         name: name.trim(),
         phone: phone.trim(),
         email: email.trim() || undefined,
-        photo: photo,
+        photo,
         membershipType,
         startDate,
+        endDate,  // ← SEND THIS
+        fee,      // ← SEND THIS
       });
 
       Alert.alert('Success', 'Client added successfully', [
@@ -230,35 +273,51 @@ const AddClientScreen = ({ navigation }: any) => {
             containerClassName="mb-6"
           />
 
-          <Text className="text-foreground mb-3 font-medium">Membership Type *</Text>
-          <View className="flex-row justify-between mb-6">
-            {(['monthly', 'quarterly', 'yearly'] as MembershipType[]).map((type) => (
-              <TouchableOpacity
-                key={type}
-                onPress={() => setMembershipType(type)}
-                className={`flex-1 h-20 items-center justify-center rounded-xl border-2 mx-1 ${
-                  membershipType === type
-                    ? 'bg-primary/10 border-primary'
-                    : 'bg-secondary border-border'
-                }`}
-              >
-                <Text
-                  className={`font-bold text-base capitalize ${
-                    membershipType === type ? 'text-primary' : 'text-muted-foreground'
+          <View className="mb-6">
+            <Text className="text-foreground font-medium mb-3">Membership Type</Text>
+            <View className="flex-row flex-wrap gap-2">
+              {(['monthly', 'quarterly', 'yearly', 'custom'] as MembershipType[]).map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  onPress={() => setMembershipType(type)}
+                  className={`px-4 py-3 rounded-lg border ${
+                    membershipType === type
+                      ? 'bg-primary border-primary'
+                      : 'bg-card border-border'
                   }`}
                 >
-                  {type}
-                </Text>
-                <Text
-                  className={`text-sm mt-1 ${
-                    membershipType === type ? 'text-primary' : 'text-muted-foreground'
-                  }`}
-                >
-                  {formatCurrency(getMembershipFee(type))}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    className={`font-medium ${
+                      membershipType === type ? 'text-primary-foreground' : 'text-foreground'
+                    }`}
+                  >
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
+
+          {/* Custom Duration and Fee Inputs */}
+          {membershipType === 'custom' && (
+            <View className="mb-6">
+              <Input
+                label="Duration (in days)"
+                value={customDuration}
+                onChangeText={setCustomDuration}
+                placeholder="30"
+                keyboardType="numeric"
+                containerClassName="mb-4"
+              />
+              <Input
+                label="Membership Fee"
+                value={customFee}
+                onChangeText={setCustomFee}
+                placeholder="2000"
+                keyboardType="numeric"
+              />
+            </View>
+          )}
 
           <Card className="mb-6 bg-primary/5 border-primary/20">
             <Text className="text-foreground font-bold mb-3">Membership Summary</Text>

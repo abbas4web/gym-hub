@@ -18,9 +18,11 @@ import ForgotPasswordScreen from '@/screens/auth/ForgotPasswordScreen';
 // Main screens
 import DashboardScreen from '@/screens/main/DashboardScreen';
 import ClientsScreen from '@/screens/main/ClientsScreen';
+import ClientDetailScreen from '@/screens/main/ClientDetailScreen';
 import ReceiptsScreen from '@/screens/main/ReceiptsScreen';
 import ReceiptDetailScreen from '@/screens/main/ReceiptDetailScreen';
 import SettingsScreen from '@/screens/main/SettingsScreen';
+import EditProfileScreen from '@/screens/main/EditProfileScreen';
 import AnalyticsScreen from '@/screens/main/AnalyticsScreen';
 import AddClientScreen from '@/screens/main/AddClientScreen';
 
@@ -114,8 +116,16 @@ const Navigation = () => {
               options={{ presentation: 'modal' }}
             />
             <Stack.Screen 
+              name="ClientDetail" 
+              component={ClientDetailScreen}
+            />
+            <Stack.Screen 
               name="ReceiptDetail" 
               component={ReceiptDetailScreen}
+            />
+            <Stack.Screen 
+              name="EditProfile" 
+              component={EditProfileScreen}
             />
             <Stack.Screen 
               name="Subscription" 

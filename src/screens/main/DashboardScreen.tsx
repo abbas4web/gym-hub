@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClients } from '@/contexts/ClientContext';
@@ -100,12 +100,23 @@ const DashboardScreen = ({ navigation }: any) => {
             </Card>
           ) : (
             clients.slice(0, 5).map(client => (
-              <Card key={client.id} className="mb-3">
+              <TouchableOpacity 
+                key={client.id}
+                onPress={() => navigation.navigate('ClientDetail', { clientId: client.id })}
+              >
+                <Card className="mb-3">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center flex-1">
-                    <View className="w-10 h-10 bg-secondary rounded-full items-center justify-center mr-3">
-                      <Text className="text-primary font-bold">{client.name.charAt(0)}</Text>
-                    </View>
+                    {client.photo ? (
+                      <Image
+                        source={{ uri: client.photo }}
+                        className="w-10 h-10 rounded-full mr-3"
+                      />
+                    ) : (
+                      <View className="w-10 h-10 bg-primary/20 rounded-full items-center justify-center mr-3">
+                        <Text className="text-primary font-bold">{client.name.charAt(0)}</Text>
+                      </View>
+                    )}
                     <View className="flex-1">
                       <Text className="text-foreground font-medium">{client.name}</Text>
                       <Text className="text-muted-foreground text-xs">{client.membershipType}</Text>
@@ -116,6 +127,7 @@ const DashboardScreen = ({ navigation }: any) => {
                   </Badge>
                 </View>
               </Card>
+            </TouchableOpacity>
             ))
           )}
         </View>

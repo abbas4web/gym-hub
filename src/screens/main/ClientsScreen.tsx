@@ -48,7 +48,10 @@ const ClientsScreen = ({ navigation }: any) => {
         <FlatList
           data={filteredClients}
           renderItem={({ item }) => (
-            <ClientCard client={item} onPress={() => {}} />
+            <ClientCard 
+              client={item} 
+              onPress={() => navigation.navigate('ClientDetail', { clientId: item.id })} 
+            />
           )}
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}

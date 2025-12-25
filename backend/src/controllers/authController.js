@@ -58,7 +58,7 @@ exports.signup = async (req, res) => {
           res.status(201).json({
             success: true,
             token,
-            user: { id: userId, name, email }
+            user: { id: userId, name, email, profile_image: null }
           });
         }
       );
@@ -100,7 +100,7 @@ exports.login = async (req, res) => {
       res.json({
         success: true,
         token,
-        user: { id: user.id, name: user.name, email: user.email }
+        user: { id: user.id, name: user.name, email: user.email, profile_image: user.profile_image }
       });
     });
   } catch (error) {
@@ -110,7 +110,7 @@ exports.login = async (req, res) => {
 
 // Get current user
 exports.getCurrentUser = (req, res) => {
-  db.get('SELECT id, name, email, created_at FROM users WHERE id = ?', [req.userId], (err, user) => {
+  db.get('SELECT id, name, email, profile_image, created_at FROM users WHERE id = ?', [req.userId], (err, user) => {
     if (err) {
       return res.status(500).json({ success: false, error: 'Database error' });
     }
@@ -121,4 +121,64 @@ exports.getCurrentUser = (req, res) => {
 
     res.json({ success: true, user });
   });
+};
+
+// Update user profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, email, profileImage } = req.body;
+    const userId = req.userId;
+
+    // Validate input
+    if (!name || !email) {
+      return res.status(400).json({ success: false, error: 'Name and email are required' });
+    }
+
+    // Validate email format
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      return res.status(400).json({ success: false, error: 'Invalid email format' });
+    }
+
+    // Check if email is already taken by another user
+    db.get('SELECT id FROM users WHERE email = ? AND id != ?', [email, userId], (err, existingUser) => {
+      if (err) {
+        return res.status(500).json({ success: false, error: 'Database error' });
+      }
+
+      if (existingUser) {
+        return res.status(400).json({ success: false, error: 'Email already in use' });
+      }
+
+      // Update user profile
+      const updateQuery = profileImage
+        ? 'UPDATE users SET name = ?, email = ?, profile_image = ? WHERE id = ?'
+        : 'UPDATE users SET name = ?, email = ? WHERE id = ?';
+      
+      const params = profileImage
+        ? [name, email, profileImage, userId]
+        : [name, email, userId];
+
+      db.run(updateQuery, params, function(err) {
+        if (err) {
+          console.error('Failed to update profile:', err);
+          return res.status(500).json({ success: false, error: 'Failed to update profile' });
+        }
+
+        // Fetch updated user data
+        db.get('SELECT id, name, email, profile_image, created_at FROM users WHERE id = ?', [userId], (err, user) => {
+          if (err) {
+            return res.status(500).json({ success: false, error: 'Database error' });
+          }
+
+          res.json({
+            success: true,
+            message: 'Profile updated successfully',
+            user
+          });
+        });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 };

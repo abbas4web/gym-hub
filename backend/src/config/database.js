@@ -21,9 +21,13 @@ function initializeDatabase() {
         name TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
+        profile_image TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
-    `);
+    `, (err) => {
+      if (err) console.error('Error creating users table:', err);
+      else console.log('Users table ready');
+    });
 
     // Clients table
     db.run(`

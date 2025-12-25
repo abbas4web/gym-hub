@@ -8,7 +8,7 @@ interface ClientContextType {
   clients: Client[];
   receipts: Receipt[];
   isLoading: boolean;
-  addClient: (clientData: Omit<Client, 'id' | 'createdAt' | 'isActive' | 'endDate' | 'fee'>) => Promise<void>;
+  addClient: (clientData: Omit<Client, 'id' | 'createdAt' | 'isActive'> & { endDate?: string; fee?: number }) => Promise<void>;
   updateClient: (id: string, updates: Partial<Client>) => Promise<void>;
   deleteClient: (id: string) => Promise<void>;
   renewMembership: (id: string, membershipType: string) => Promise<void>;
@@ -93,7 +93,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addClient = async (clientData: Omit<Client, 'id' | 'createdAt' | 'isActive' | 'endDate' | 'fee'>) => {
+  const addClient = async (clientData: Omit<Client, 'id' | 'createdAt' | 'isActive'> & { endDate?: string; fee?: number }) => {
     try {
       const response = await clientAPI.add({
         name: clientData.name,
@@ -101,7 +101,9 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
         email: clientData.email,
         photo: clientData.photo,
         membershipType: clientData.membershipType,
-        startDate: clientData.startDate
+        startDate: clientData.startDate,
+        endDate: clientData.endDate,  // Pass endDate
+        fee: clientData.fee,            // Pass fee
       });
 
       if (response.success) {
