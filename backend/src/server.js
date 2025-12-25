@@ -20,6 +20,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/clients', require('./routes/clients'));
 app.use('/api/receipts', require('./routes/receipts'));
 app.use('/api/subscription', require('./routes/subscription'));
+app.use('/api/super-admin', require('./routes/superAdmin'));
 
 // Health check
 app.get('/health', (req, res) => {

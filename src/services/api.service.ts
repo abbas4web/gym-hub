@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Use your computer's local IP address instead of localhost for physical devices
-// Your Wi-Fi IP: 192.168.100.4
-const API_URL = 'http://192.168.100.4:3000/api';
+// Production backend URL
+const API_URL = 'https://gym-hub-backend-prod.vercel.app/api';
 
 // Token management
 const TOKEN_KEY = 'gym_auth_token';
