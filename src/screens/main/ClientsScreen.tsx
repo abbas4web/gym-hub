@@ -1,56 +1,28 @@
 import { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { mockClients } from '@/hooks/useGymData';
-import { Search, Plus, Phone, Mail } from 'lucide-react-native';
+import { useClients } from '@/contexts/ClientContext';
+import { Search, Plus } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
+import { Input } from '@/components/ui/Input';
+import { ClientCard } from '@/components/ClientCard';
 
 cssInterop(Search, { className: { target: "style" } });
 cssInterop(Plus, { className: { target: "style" } });
-cssInterop(Phone, { className: { target: "style" } });
-cssInterop(Mail, { className: { target: "style" } });
 
 const ClientsScreen = ({ navigation }: any) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const clients = mockClients;
+  const { clients, isLoading, searchClients } = useClients();
 
-  const filteredClients = clients.filter(client => 
-    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredClients = searchClients(searchQuery);
 
-  const renderClientItem = ({ item }: { item: any }) => (
-    <TouchableOpacity className="bg-card p-4 mb-3 rounded-xl border border-border">
-      <View className="flex-row justify-between items-start">
-        <View className="flex-row items-center flex-1">
-          <View className="w-12 h-12 bg-secondary rounded-full items-center justify-center mr-3">
-            <Text className="text-primary font-bold text-lg">{item.name.charAt(0)}</Text>
-          </View>
-          <View className="flex-1">
-            <Text className="text-foreground font-bold text-lg">{item.name}</Text>
-            <Text className="text-muted-foreground text-sm">{item.membershipType} Membership</Text>
-          </View>
-        </View>
-        <View className={`px-2 py-1 rounded-md ${item.status === 'Active' ? 'bg-primary/20' : 'bg-destructive/20'}`}>
-          <Text className={`text-xs font-bold ${item.status === 'Active' ? 'text-primary' : 'text-destructive'}`}>
-            {item.status}
-          </Text>
-        </View>
-      </View>
-      
-      <View className="flex-row mt-4 pt-4 border-t border-border">
-        <TouchableOpacity className="flex-1 flex-row items-center justify-center">
-          <Phone size={16} color="#a1a1aa" />
-          <Text className="text-muted-foreground ml-2">Call</Text>
-        </TouchableOpacity>
-        <View className="w-[1px] h-full bg-border" />
-        <TouchableOpacity className="flex-1 flex-row items-center justify-center">
-          <Mail size={16} color="#a1a1aa" />
-          <Text className="text-muted-foreground ml-2">Email</Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-background items-center justify-center">
+        <ActivityIndicator size="large" color="#84cc16" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -65,26 +37,35 @@ const ClientsScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
 
-        <View className="flex-row items-center bg-secondary rounded-xl px-4 h-12 border border-border mb-6">
-          <Search size={20} color="#a1a1aa" />
-          <TextInput
-            className="flex-1 ml-3 text-foreground"
-            placeholder="Search clients..."
-            placeholderTextColor="#a1a1aa"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
+        <Input
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search clients..."
+          icon={<Search size={20} color="#a1a1aa" />}
+          containerClassName="mb-6"
+        />
 
         <FlatList
           data={filteredClients}
-          renderItem={renderClientItem}
+          renderItem={({ item }) => (
+            <ClientCard client={item} onPress={() => {}} />
+          )}
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
           ListEmptyComponent={
             <View className="items-center justify-center py-20">
-              <Text className="text-muted-foreground">No clients found</Text>
+              <Text className="text-muted-foreground">
+                {searchQuery ? 'No clients found' : 'No clients yet'}
+              </Text>
+              {!searchQuery && (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('AddClient')}
+                  className="mt-4 bg-primary px-6 py-3 rounded-xl"
+                >
+                  <Text className="text-primary-foreground font-bold">Add First Client</Text>
+                </TouchableOpacity>
+              )}
             </View>
           }
         />

@@ -6,17 +6,34 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { ClientProvider } from '@/contexts/ClientContext';
 import { Home, Users, Receipt, Settings, BarChart3 } from 'lucide-react-native';
 
-// Placeholder screens
+// Auth screens
 import LoginScreen from '@/screens/auth/LoginScreen';
+import SignupScreen from '@/screens/auth/SignupScreen';
+import ForgotPasswordScreen from '@/screens/auth/ForgotPasswordScreen';
+
+// Main screens
 import DashboardScreen from '@/screens/main/DashboardScreen';
 import ClientsScreen from '@/screens/main/ClientsScreen';
 import ReceiptsScreen from '@/screens/main/ReceiptsScreen';
+import ReceiptDetailScreen from '@/screens/main/ReceiptDetailScreen';
 import SettingsScreen from '@/screens/main/SettingsScreen';
 import AnalyticsScreen from '@/screens/main/AnalyticsScreen';
-import SignupScreen from '@/screens/auth/SignupScreen';
 import AddClientScreen from '@/screens/main/AddClientScreen';
+
+// Placeholder for Subscription screen
+const SubscriptionScreen = () => {
+  const { View, Text, SafeAreaView } = require('react-native');
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0d0f14', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+      <Text style={{ color: '#fcfcfc', fontSize: 24, fontWeight: 'bold', marginBottom: 10 }}>Subscription Plans</Text>
+      <Text style={{ color: '#a1a1aa', textAlign: 'center' }}>Coming soon! Upgrade to Pro or Business plans.</Text>
+    </SafeAreaView>
+  );
+};
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -27,7 +44,7 @@ const MainTabs = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#1a1d24',
+          backgroundColor: '#0d0f14',
           borderTopColor: '#272a30',
         },
         tabBarActiveTintColor: '#84cc16',
@@ -89,11 +106,28 @@ const Navigation = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
-          <Stack.Screen name="Main" component={MainTabs} />
+          <>
+            <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen 
+              name="AddClient" 
+              component={AddClientScreen}
+              options={{ presentation: 'modal' }}
+            />
+            <Stack.Screen 
+              name="ReceiptDetail" 
+              component={ReceiptDetailScreen}
+            />
+            <Stack.Screen 
+              name="Subscription" 
+              component={SubscriptionScreen}
+              options={{ presentation: 'modal' }}
+            />
+          </>
         ) : (
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Signup" component={SignupScreen} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           </>
         )}
       </Stack.Navigator>
@@ -104,12 +138,16 @@ const Navigation = () => {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <SubscriptionProvider>
-          <Navigation />
-          <StatusBar style="light" />
-        </SubscriptionProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <SubscriptionProvider>
+            <ClientProvider>
+              <Navigation />
+              <StatusBar style="light" />
+            </ClientProvider>
+          </SubscriptionProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

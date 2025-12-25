@@ -1,118 +1,288 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '@/contexts/AuthContext';
-import { User, Mail, DollarSign } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { useClients } from '@/contexts/ClientContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { User, Mail, Phone, Calendar, Camera, Image as ImageIcon } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { MembershipType } from '@/types/models';
+import { getMembershipFee, calculateEndDate, formatDate, formatCurrency } from '@/utils/membership.utils';
 
 cssInterop(User, { className: { target: "style" } });
 cssInterop(Mail, { className: { target: "style" } });
-cssInterop(DollarSign, { className: { target: "style" } });
+cssInterop(Phone, { className: { target: "style" } });
+cssInterop(Calendar, { className: { target: "style" } });
+cssInterop(Camera, { className: { target: "style" } });
+cssInterop(ImageIcon, { className: { target: "style" } });
 
 const AddClientScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [membershipType, setMembershipType] = useState<'Monthly' | 'Quarterly' | 'Yearly'>('Monthly');
-  const [fee, setFee] = useState('');
+  const [photo, setPhoto] = useState<string | undefined>(undefined);
+  const [membershipType, setMembershipType] = useState<MembershipType>('monthly');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
 
-  const handleAddClient = () => {
-    if (!name || !email || !fee) {
-      Alert.alert('Error', 'Please fill in all required fields');
+  const { addClient } = useClients();
+  const { canAddClient } = useSubscription();
+
+  const startDate = new Date().toISOString();
+  const endDate = calculateEndDate(startDate, membershipType);
+  const fee = getMembershipFee(membershipType);
+
+  const requestPermissions = async () => {
+    const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+    const { status: galleryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (cameraStatus !== 'granted' || galleryStatus !== 'granted') {
+      Alert.alert('Permission Required', 'Please grant camera and gallery permissions to upload photos.');
+      return false;
+    }
+    return true;
+  };
+
+  const pickImageFromGallery = async () => {
+    const hasPermission = await requestPermissions();
+    if (!hasPermission) return;
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setPhoto(result.assets[0].uri);
+    }
+  };
+
+  const takePhoto = async () => {
+    const hasPermission = await requestPermissions();
+    if (!hasPermission) return;
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setPhoto(result.assets[0].uri);
+    }
+  };
+
+  const showImageOptions = () => {
+    Alert.alert(
+      'Add Photo',
+      'Choose an option',
+      [
+        { text: 'Take Photo', onPress: takePhoto },
+        { text: 'Choose from Gallery', onPress: pickImageFromGallery },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
+  };
+
+  const validate = () => {
+    const newErrors: { name?: string; phone?: string; email?: string } = {};
+
+    if (!name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+
+    if (!phone.trim()) {
+      newErrors.phone = 'Phone is required';
+    } else if (!/^\d{10}$/.test(phone.replace(/\D/g, ''))) {
+      newErrors.phone = 'Phone must be 10 digits';
+    }
+
+    if (email && !/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Email is invalid';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleAddClient = async () => {
+    if (!validate()) return;
+
+    // Check subscription limit
+    const canAdd = await canAddClient();
+    if (!canAdd) {
+      Alert.alert(
+        'Client Limit Reached',
+        'You have reached the maximum number of clients for your plan. Please upgrade to add more clients.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Upgrade', onPress: () => navigation.navigate('Subscription') },
+        ]
+      );
       return;
     }
 
-    // Mock API call
-    console.log('Adding client:', { name, email, membershipType, fee });
-    
-    Alert.alert('Success', 'Client added successfully', [
-      { text: 'OK', onPress: () => navigation.goBack() }
-    ]);
+    setIsSubmitting(true);
+    try {
+      await addClient({
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email.trim() || undefined,
+        photo: photo,
+        membershipType,
+        startDate,
+      });
+
+      Alert.alert('Success', 'Client added successfully', [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
+    } catch (error: any) {
+      console.error('Add client error:', error);
+      Alert.alert('Error', error.message || 'Failed to add client. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="px-6 py-4 border-b border-border">
-        <Text className="text-xl font-bold text-foreground">Add New Client</Text>
-      </View>
-
-      <ScrollView className="flex-1 px-6 pt-6">
-        <View className="space-y-4 mb-8">
-          <View>
-            <Text className="text-foreground mb-2 font-medium">Full Name</Text>
-            <View className="flex-row items-center bg-secondary rounded-xl px-4 h-12 border border-border">
-              <User size={20} color="#a1a1aa" />
-              <TextInput
-                className="flex-1 ml-3 text-foreground"
-                placeholder="Client name"
-                placeholderTextColor="#a1a1aa"
-                value={name}
-                onChangeText={setName}
-              />
-            </View>
-          </View>
-
-          <View>
-            <Text className="text-foreground mb-2 font-medium">Email</Text>
-            <View className="flex-row items-center bg-secondary rounded-xl px-4 h-12 border border-border">
-              <Mail size={20} color="#a1a1aa" />
-              <TextInput
-                className="flex-1 ml-3 text-foreground"
-                placeholder="Client email"
-                placeholderTextColor="#a1a1aa"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
-
-          <View>
-            <Text className="text-foreground mb-2 font-medium">Membership Type</Text>
-            <View className="flex-row justify-between space-x-2">
-              {['Monthly', 'Quarterly', 'Yearly'].map((type) => (
-                <TouchableOpacity
-                  key={type}
-                  onPress={() => setMembershipType(type as any)}
-                  className={`flex-1 h-10 items-center justify-center rounded-lg border ${
-                    membershipType === type 
-                      ? 'bg-primary border-primary' 
-                      : 'bg-secondary border-border'
-                  }`}
-                >
-                  <Text className={`font-medium ${
-                    membershipType === type ? 'text-background' : 'text-muted-foreground'
-                  }`}>
-                    {type}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View>
-            <Text className="text-foreground mb-2 font-medium">Membership Fee</Text>
-            <View className="flex-row items-center bg-secondary rounded-xl px-4 h-12 border border-border">
-              <DollarSign size={20} color="#a1a1aa" />
-              <TextInput
-                className="flex-1 ml-3 text-foreground"
-                placeholder="Amount"
-                placeholderTextColor="#a1a1aa"
-                value={fee}
-                onChangeText={setFee}
-                keyboardType="numeric"
-              />
-            </View>
-          </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
+      >
+        <View className="px-6 py-4 border-b border-border flex-row justify-between items-center">
+          <Text className="text-xl font-bold text-foreground">Add New Client</Text>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Text className="text-primary font-medium">Cancel</Text>
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          className="bg-primary h-12 rounded-xl items-center justify-center mb-6"
-          onPress={handleAddClient}
-        >
-          <Text className="text-background font-bold text-lg">Save Client</Text>
-        </TouchableOpacity>
-      </ScrollView>
+        <ScrollView className="flex-1 px-6 pt-6" keyboardShouldPersistTaps="handled">
+          {/* Photo Upload */}
+          <View className="items-center mb-6">
+            <TouchableOpacity
+              onPress={showImageOptions}
+              className="w-32 h-32 rounded-full bg-secondary border-2 border-border items-center justify-center overflow-hidden"
+            >
+              {photo ? (
+                <Image source={{ uri: photo }} className="w-full h-full" />
+              ) : (
+                <View className="items-center">
+                  <Camera size={40} color="#a1a1aa" />
+                  <Text className="text-muted-foreground text-xs mt-2">Add Photo</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            {photo && (
+              <TouchableOpacity
+                onPress={() => setPhoto(undefined)}
+                className="mt-2"
+              >
+                <Text className="text-destructive text-sm">Remove Photo</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          <Input
+            label="Full Name *"
+            value={name}
+            onChangeText={(text) => {
+              setName(text);
+              setErrors({ ...errors, name: undefined });
+            }}
+            placeholder="Client name"
+            error={errors.name}
+            icon={<User size={20} color="#a1a1aa" />}
+            containerClassName="mb-4"
+          />
+
+          <Input
+            label="Phone Number *"
+            value={phone}
+            onChangeText={(text) => {
+              setPhone(text);
+              setErrors({ ...errors, phone: undefined });
+            }}
+            placeholder="10-digit phone number"
+            keyboardType="phone-pad"
+            error={errors.phone}
+            icon={<Phone size={20} color="#a1a1aa" />}
+            containerClassName="mb-4"
+          />
+
+          <Input
+            label="Email (Optional)"
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              setErrors({ ...errors, email: undefined });
+            }}
+            placeholder="Client email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            error={errors.email}
+            icon={<Mail size={20} color="#a1a1aa" />}
+            containerClassName="mb-6"
+          />
+
+          <Text className="text-foreground mb-3 font-medium">Membership Type *</Text>
+          <View className="flex-row justify-between mb-6">
+            {(['monthly', 'quarterly', 'yearly'] as MembershipType[]).map((type) => (
+              <TouchableOpacity
+                key={type}
+                onPress={() => setMembershipType(type)}
+                className={`flex-1 h-20 items-center justify-center rounded-xl border-2 mx-1 ${
+                  membershipType === type
+                    ? 'bg-primary/10 border-primary'
+                    : 'bg-secondary border-border'
+                }`}
+              >
+                <Text
+                  className={`font-bold text-base capitalize ${
+                    membershipType === type ? 'text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                  {type}
+                </Text>
+                <Text
+                  className={`text-sm mt-1 ${
+                    membershipType === type ? 'text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                  {formatCurrency(getMembershipFee(type))}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Card className="mb-6 bg-primary/5 border-primary/20">
+            <Text className="text-foreground font-bold mb-3">Membership Summary</Text>
+            <View className="space-y-2">
+              <View className="flex-row justify-between">
+                <Text className="text-muted-foreground">Start Date</Text>
+                <Text className="text-foreground font-medium">{formatDate(startDate)}</Text>
+              </View>
+              <View className="flex-row justify-between">
+                <Text className="text-muted-foreground">End Date</Text>
+                <Text className="text-foreground font-medium">{formatDate(endDate)}</Text>
+              </View>
+              <View className="flex-row justify-between pt-2 border-t border-border">
+                <Text className="text-foreground font-bold">Total Fee</Text>
+                <Text className="text-primary font-bold text-xl">{formatCurrency(fee)}</Text>
+              </View>
+            </View>
+          </Card>
+
+          <Button onPress={handleAddClient} loading={isSubmitting} className="mb-6">
+            Add Client & Generate Receipt
+          </Button>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
