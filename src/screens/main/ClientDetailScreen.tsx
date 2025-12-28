@@ -145,6 +145,23 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
           </View>
         </Card>
 
+        {/* Aadhar Card Photo */}
+        {client.adharPhoto && (
+          <Card className="mb-6">
+            <Text className="text-foreground font-bold text-lg mb-4">Aadhar Card</Text>
+            <View className="bg-secondary rounded-lg overflow-hidden">
+              <Image
+                source={{ uri: client.adharPhoto }}
+                className="w-full h-48"
+                resizeMode="contain"
+              />
+            </View>
+            <Text className="text-muted-foreground text-xs mt-2 text-center">
+              Tap to view full size
+            </Text>
+          </Card>
+        )}
+
         {/* Additional Info */}
         <Card className="mb-6">
           <Text className="text-foreground font-bold text-lg mb-4">Additional Information</Text>

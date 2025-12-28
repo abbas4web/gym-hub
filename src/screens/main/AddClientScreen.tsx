@@ -24,6 +24,7 @@ const AddClientScreen = ({ navigation }: any) => {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [photo, setPhoto] = useState<string | undefined>(undefined);
+  const [adharPhoto, setAdharPhoto] = useState<string | undefined>(undefined);
   const [selectedPlanIndex, setSelectedPlanIndex] = useState<number | null>(null);
   const [isCustom, setIsCustom] = useState(false);
   const [customDuration, setCustomDuration] = useState('');
@@ -88,10 +89,14 @@ const AddClientScreen = ({ navigation }: any) => {
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.5,
+      base64: true,
     });
 
     if (!result.canceled && result.assets[0]) {
-      setPhoto(result.assets[0].uri);
+      const base64 = result.assets[0].base64;
+      if (base64) {
+        setPhoto(`data:image/jpeg;base64,${base64}`);
+      }
     }
   };
 
@@ -103,10 +108,14 @@ const AddClientScreen = ({ navigation }: any) => {
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.5,
+      base64: true,
     });
 
     if (!result.canceled && result.assets[0]) {
-      setPhoto(result.assets[0].uri);
+      const base64 = result.assets[0].base64;
+      if (base64) {
+        setPhoto(`data:image/jpeg;base64,${base64}`);
+      }
     }
   };
 
@@ -117,6 +126,58 @@ const AddClientScreen = ({ navigation }: any) => {
       [
         { text: 'Take Photo', onPress: takePhoto },
         { text: 'Choose from Gallery', onPress: pickImageFromGallery },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
+  };
+
+  // Aadhar Photo Functions
+  const pickAdharFromGallery = async () => {
+    const hasPermission = await requestPermissions();
+    if (!hasPermission) return;
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [16, 10], // Aadhar card aspect ratio
+      quality: 0.7,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const base64 = result.assets[0].base64;
+      if (base64) {
+        setAdharPhoto(`data:image/jpeg;base64,${base64}`);
+      }
+    }
+  };
+
+  const takeAdharPhoto = async () => {
+    const hasPermission = await requestPermissions();
+    if (!hasPermission) return;
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [16, 10], // Aadhar card aspect ratio
+      quality: 0.7,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const base64 = result.assets[0].base64;
+      if (base64) {
+        setAdharPhoto(`data:image/jpeg;base64,${base64}`);
+      }
+    }
+  };
+
+  const showAdharImageOptions = () => {
+    Alert.alert(
+      'Add Aadhar Card Photo',
+      'Choose an option',
+      [
+        { text: 'Take Photo', onPress: takeAdharPhoto },
+        { text: 'Choose from Gallery', onPress: pickAdharFromGallery },
         { text: 'Cancel', style: 'cancel' },
       ]
     );
@@ -178,6 +239,7 @@ const AddClientScreen = ({ navigation }: any) => {
         phone: phone.trim(),
         email: email.trim() || undefined,
         photo,
+        adharPhoto: adharPhoto,
         membershipType: membershipType as any, // Allow custom plan names
         startDate,
         endDate,  // ← SEND THIS
@@ -209,8 +271,9 @@ const AddClientScreen = ({ navigation }: any) => {
         </View>
 
         <ScrollView className="flex-1 px-6 pt-6" keyboardShouldPersistTaps="handled">
-          {/* Photo Upload */}
+          {/* Client Photo */}
           <View className="items-center mb-6">
+            <Text className="text-muted-foreground text-sm mb-3">Client Photo</Text>
             <TouchableOpacity
               onPress={showImageOptions}
               className="w-32 h-32 rounded-full bg-secondary border-2 border-border items-center justify-center overflow-hidden"
@@ -230,6 +293,33 @@ const AddClientScreen = ({ navigation }: any) => {
                 className="mt-2"
               >
                 <Text className="text-destructive text-sm">Remove Photo</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Aadhar Card Photo */}
+          <View className="items-center mb-6">
+            <Text className="text-muted-foreground text-sm mb-3">Aadhar Card Photo</Text>
+            <TouchableOpacity
+              onPress={showAdharImageOptions}
+              className="w-64 h-40 rounded-lg bg-secondary border-2 border-dashed border-border items-center justify-center overflow-hidden"
+            >
+              {adharPhoto ? (
+                <Image source={{ uri: adharPhoto }} className="w-full h-full" resizeMode="contain" />
+              ) : (
+                <View className="items-center">
+                  <Camera size={40} color="#a1a1aa" />
+                  <Text className="text-muted-foreground text-xs mt-2">Add Aadhar Card</Text>
+                  <Text className="text-muted-foreground text-xs mt-1">(Optional)</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            {adharPhoto && (
+              <TouchableOpacity
+                onPress={() => setAdharPhoto(undefined)}
+                className="mt-2"
+              >
+                <Text className="text-destructive text-sm">Remove Aadhar</Text>
               </TouchableOpacity>
             )}
           </View>

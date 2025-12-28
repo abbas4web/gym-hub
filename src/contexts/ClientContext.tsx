@@ -59,6 +59,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
           phone: client.phone,
           email: client.email,
           photo: client.photo,
+          adharPhoto: client.adhar_photo, // Convert snake_case to camelCase
           membershipType: client.membership_type,
           startDate: client.start_date,
           endDate: client.end_date,
@@ -100,6 +101,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
         phone: clientData.phone,
         email: clientData.email,
         photo: clientData.photo,
+        adhar_photo: clientData.adharPhoto, // Convert camelCase to snake_case for backend
         membershipType: clientData.membershipType,
         startDate: clientData.startDate,
         endDate: clientData.endDate,  // Pass endDate
@@ -114,6 +116,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
           phone: response.client.phone,
           email: response.client.email,
           photo: response.client.photo,
+          adharPhoto: response.client.adhar_photo, // Convert snake_case to camelCase
           membershipType: response.client.membership_type,
           startDate: response.client.start_date,
           endDate: response.client.end_date,

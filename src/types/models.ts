@@ -6,6 +6,7 @@ export interface Client {
   phone: string;
   email?: string;
   photo?: string; // base64 or URI
+  adharPhoto?: string; // base64 or URI for Aadhar card
   membershipType: MembershipType;
   startDate: string; // ISO date
   endDate: string; // ISO date
