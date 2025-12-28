@@ -73,6 +73,56 @@ const SettingsScreen = ({ navigation }: any) => {
           </View>
         </Card>
 
+        {/* Gym Information */}
+        {user?.gym_name && (
+          <Card className="mb-6">
+            <View className="flex-row items-center mb-4">
+              {user?.gym_logo ? (
+                <Image
+                  source={{ uri: user.gym_logo }}
+                  className="w-16 h-16 rounded-lg mr-4"
+                  resizeMode="cover"
+                />
+              ) : (
+                <View className="w-16 h-16 bg-primary/20 rounded-lg items-center justify-center mr-4">
+                  <Text className="text-primary font-bold text-2xl">
+                    {user.gym_name.charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+              )}
+              <View className="flex-1">
+                <Text className="text-muted-foreground text-xs mb-1">Gym Name</Text>
+                <Text className="text-foreground font-bold text-lg">{user.gym_name}</Text>
+              </View>
+            </View>
+
+            {/* Membership Plans */}
+            {user?.membership_plans && user.membership_plans.length > 0 && (
+              <View>
+                <Text className="text-foreground font-bold mb-3">Membership Plans</Text>
+                {user.membership_plans.map((plan, index) => (
+                  <View 
+                    key={index}
+                    className="bg-muted/50 rounded-lg p-3 mb-2"
+                  >
+                    <View className="flex-row justify-between items-center">
+                      <View className="flex-1">
+                        <Text className="text-foreground font-semibold">{plan.name}</Text>
+                        <Text className="text-muted-foreground text-xs mt-1">
+                          {plan.duration} {plan.duration === 1 ? 'month' : 'months'}
+                        </Text>
+                      </View>
+                      <View className="bg-primary/20 px-3 py-1 rounded-full">
+                        <Text className="text-primary font-bold">₹{plan.fee}</Text>
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+          </Card>
+        )}
+
         {/* Subscription */}
         <Card className="mb-6">
           <View className="flex-row items-center justify-between mb-3">

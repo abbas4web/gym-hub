@@ -25,12 +25,21 @@ export interface Receipt {
   generatedAt: string; // ISO date
 }
 
+export interface MembershipPlan {
+  name: string;
+  duration: number; // in months
+  fee: number;
+}
+
 export interface User {
   id: string;
   email: string;
   name: string;
   password: string; // hashed in production
   profile_image?: string; // base64 or URI
+  gym_name?: string;
+  gym_logo?: string; // base64 or URI
+  membership_plans?: MembershipPlan[];
   createdAt: string; // ISO date
 }
 

@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dumbbell, Mail, Lock } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { usePopup } from '@/hooks/usePopup';
+import CustomPopup from '@/components/CustomPopup';
 
 cssInterop(Dumbbell, { className: { target: "style" } });
 cssInterop(Mail, { className: { target: "style" } });
@@ -17,6 +19,7 @@ const LoginScreen = ({ navigation }: any) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const { login } = useAuth();
+  const { popupState, showError, hidePopup } = usePopup();
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -45,7 +48,7 @@ const LoginScreen = ({ navigation }: any) => {
     setIsSubmitting(false);
 
     if (result.error) {
-      Alert.alert('Login Failed', result.error);
+      showError('Login Failed', result.error);
     }
   };
 
@@ -121,6 +124,17 @@ const LoginScreen = ({ navigation }: any) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      <CustomPopup
+        visible={popupState.visible}
+        type={popupState.type}
+        title={popupState.title}
+        message={popupState.message}
+        onClose={hidePopup}
+        confirmText={popupState.confirmText}
+        onConfirm={popupState.onConfirm}
+        cancelText={popupState.cancelText}
+      />
     </SafeAreaView>
   );
 };

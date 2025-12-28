@@ -4,11 +4,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { LogBox } from 'react-native';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ClientProvider } from '@/contexts/ClientContext';
 import { Home, Users, Receipt, Settings, BarChart3 } from 'lucide-react-native';
+
+// Disable error/warning notifications - we show errors in CustomPopup
+LogBox.ignoreAllLogs(true);
 
 // Auth screens
 import LoginScreen from '@/screens/auth/LoginScreen';

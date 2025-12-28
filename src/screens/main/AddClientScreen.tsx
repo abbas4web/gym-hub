@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { useClients } from '@/contexts/ClientContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { User, Mail, Phone, Calendar, Camera } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
 import { Input } from '@/components/ui/Input';
@@ -23,7 +24,8 @@ const AddClientScreen = ({ navigation }: any) => {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [photo, setPhoto] = useState<string | undefined>(undefined);
-  const [membershipType, setMembershipType] = useState<MembershipType>('monthly');
+  const [selectedPlanIndex, setSelectedPlanIndex] = useState<number | null>(null);
+  const [isCustom, setIsCustom] = useState(false);
   const [customDuration, setCustomDuration] = useState('');
   const [customFee, setCustomFee] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,40 +33,40 @@ const AddClientScreen = ({ navigation }: any) => {
 
   const { addClient } = useClients();
   const { canAddClient } = useSubscription();
+  const { user } = useAuth();
+
+  // Get admin's membership plans or use empty array
+  const adminPlans = user?.membership_plans || [];
 
   const calculateMembershipDetails = () => {
     const startDate = new Date();
     let endDate = new Date();
     let fee = 0;
+    let membershipType: string = 'custom';
 
-    switch (membershipType) {
-      case 'monthly':
-        endDate.setMonth(endDate.getMonth() + 1);
-        fee = 1500;
-        break;
-      case 'quarterly':
-        endDate.setMonth(endDate.getMonth() + 3);
-        fee = 4000;
-        break;
-      case 'yearly':
-        endDate.setFullYear(endDate.getFullYear() + 1);
-        fee = 15000;
-        break;
-      case 'custom':
-        const days = parseInt(customDuration) || 0;
-        endDate.setDate(endDate.getDate() + days);
-        fee = parseFloat(customFee) || 0;
-        break;
+    if (isCustom) {
+      // Custom membership
+      const days = parseInt(customDuration) || 0;
+      endDate.setDate(endDate.getDate() + days);
+      fee = parseFloat(customFee) || 0;
+      membershipType = 'custom';
+    } else if (selectedPlanIndex !== null && adminPlans[selectedPlanIndex]) {
+      // Admin's predefined plan - use plan name as membership type
+      const plan = adminPlans[selectedPlanIndex];
+      endDate.setMonth(endDate.getMonth() + plan.duration);
+      fee = plan.fee;
+      membershipType = plan.name; // Use the plan name (e.g., "Month", "Yearly")
     }
 
     return {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       fee,
+      membershipType,
     };
   };
 
-  const { startDate, endDate, fee } = calculateMembershipDetails();
+  const { startDate, endDate, fee, membershipType } = calculateMembershipDetails();
 
   const requestPermissions = async () => {
     const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
@@ -137,7 +139,8 @@ const AddClientScreen = ({ navigation }: any) => {
       newErrors.email = 'Email is invalid';
     }
 
-    if (membershipType === 'custom') {
+    // Only validate custom fields when custom option is selected
+    if (isCustom) {
       if (!customDuration || parseInt(customDuration) <= 0) {
         Alert.alert('Error', 'Please enter a valid duration in days');
         return false;
@@ -175,7 +178,7 @@ const AddClientScreen = ({ navigation }: any) => {
         phone: phone.trim(),
         email: email.trim() || undefined,
         photo,
-        membershipType,
+        membershipType: membershipType as any, // Allow custom plan names
         startDate,
         endDate,  // ← SEND THIS
         fee,      // ← SEND THIS
@@ -274,32 +277,64 @@ const AddClientScreen = ({ navigation }: any) => {
           />
 
           <View className="mb-6">
-            <Text className="text-foreground font-medium mb-3">Membership Type</Text>
+            <Text className="text-foreground font-medium mb-3">Membership Plan</Text>
             <View className="flex-row flex-wrap gap-2">
-              {(['monthly', 'quarterly', 'yearly', 'custom'] as MembershipType[]).map((type) => (
+              {/* Admin's Custom Plans */}
+              {adminPlans.map((plan, index) => (
                 <TouchableOpacity
-                  key={type}
-                  onPress={() => setMembershipType(type)}
+                  key={index}
+                  onPress={() => {
+                    setSelectedPlanIndex(index);
+                    setIsCustom(false);
+                  }}
                   className={`px-4 py-3 rounded-lg border ${
-                    membershipType === type
+                    selectedPlanIndex === index && !isCustom
                       ? 'bg-primary border-primary'
                       : 'bg-card border-border'
                   }`}
                 >
                   <Text
                     className={`font-medium ${
-                      membershipType === type ? 'text-primary-foreground' : 'text-foreground'
+                      selectedPlanIndex === index && !isCustom ? 'text-primary-foreground' : 'text-foreground'
                     }`}
                   >
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                    {plan.name}
+                  </Text>
+                  <Text
+                    className={`text-xs mt-1 ${
+                      selectedPlanIndex === index && !isCustom ? 'text-primary-foreground/80' : 'text-muted-foreground'
+                    }`}
+                  >
+                    ₹{plan.fee} • {plan.duration}mo
                   </Text>
                 </TouchableOpacity>
               ))}
+              
+              {/* Custom Option */}
+              <TouchableOpacity
+                onPress={() => {
+                  setIsCustom(true);
+                  setSelectedPlanIndex(null);
+                }}
+                className={`px-4 py-3 rounded-lg border ${
+                  isCustom
+                    ? 'bg-primary border-primary'
+                    : 'bg-card border-border'
+                }`}
+              >
+                <Text
+                  className={`font-medium ${
+                    isCustom ? 'text-primary-foreground' : 'text-foreground'
+                  }`}
+                >
+                  Custom
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 
           {/* Custom Duration and Fee Inputs */}
-          {membershipType === 'custom' && (
+          {isCustom && (
             <View className="mb-6">
               <Input
                 label="Duration (in days)"

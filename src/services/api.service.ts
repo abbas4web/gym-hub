@@ -75,15 +75,31 @@ const apiRequest = async (
 
     return data;
   } catch (error: any) {
-    console.error('API Request Error:', error);
+    // Don't log to console - errors will be shown in UI via CustomPopup
+    // console.error('API Request Error:', error);
     throw error;
   }
 };
 
 // Auth API
 export const authAPI = {
-  signup: async (name: string, email: string, password: string) => {
-    const data = await apiRequest('/auth/signup', 'POST', { name, email, password }, false);
+  signup: async (
+    name: string,
+    email: string,
+    password: string,
+    gymName?: string,
+    gymLogo?: string,
+    membershipPlans?: { name: string; duration: number; fee: number }[]
+  ) => {
+    const payload: any = { name, email, password };
+    
+    if (gymName) payload.gymName = gymName;
+    if (gymLogo) payload.gymLogo = gymLogo;
+    if (membershipPlans && membershipPlans.length > 0) {
+      payload.membershipPlans = membershipPlans;
+    }
+    
+    const data = await apiRequest('/auth/signup', 'POST', payload, false);
     if (data.token) {
       await setToken(data.token);
     }

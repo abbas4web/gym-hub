@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { User } from '@/types/models';
+import { User, MembershipPlan } from '@/types/models';
 import { authAPI, removeToken } from '@/services/api.service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -7,7 +7,14 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ user?: User; error?: string }>;
-  signup: (name: string, email: string, password: string) => Promise<{ user?: User; error?: string }>;
+  signup: (
+    name: string,
+    email: string,
+    password: string,
+    gymName?: string,
+    gymLogo?: string,
+    membershipPlans?: MembershipPlan[]
+  ) => Promise<{ user?: User; error?: string }>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   updateUser: (userData: User) => void;
@@ -34,6 +41,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loadUser = async () => {
     try {
+      // Only try to load user if we have a token
+      const token = await AsyncStorage.getItem('gym_auth_token');
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+
       const response = await authAPI.getCurrentUser();
       if (response.success && response.user) {
         setUser(response.user);
@@ -47,7 +61,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signup = async (name: string, email: string, password: string): Promise<{ user?: User; error?: string }> => {
+  const signup = async (
+    name: string,
+    email: string,
+    password: string,
+    gymName?: string,
+    gymLogo?: string,
+    membershipPlans?: { name: string; duration: number; fee: number }[]
+  ): Promise<{ user?: User; error?: string }> => {
     try {
       // Validate
       if (!name.trim() || !email.trim() || !password) {
@@ -62,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: 'Password must be at least 6 characters' };
       }
 
-      const response = await authAPI.signup(name, email, password);
+      const response = await authAPI.signup(name, email, password, gymName, gymLogo, membershipPlans);
       
       if (response.success && response.user) {
         setUser(response.user);
