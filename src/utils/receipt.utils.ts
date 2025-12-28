@@ -1,7 +1,11 @@
 import { Receipt } from '@/types/models';
 import { formatDate, formatCurrency, getMembershipTypeName } from './membership.utils';
 
-export const generateReceiptHTML = (receipt: Receipt, gymName: string = 'GYM HUB'): string => {
+export const generateReceiptHTML = (
+  receipt: Receipt,
+  gymName: string = 'GYM HUB',
+  gymLogo?: string
+): string => {
   return `
 <!DOCTYPE html>
 <html>
@@ -191,6 +195,7 @@ export const generateReceiptHTML = (receipt: Receipt, gymName: string = 'GYM HUB
   <div class="receipt">
     <!-- Header -->
     <div class="header">
+      ${gymLogo ? `<img src="${gymLogo}" alt="${gymName} Logo" style="width: 80px; height: 80px; object-fit: contain; margin-bottom: 15px; border-radius: 10px;" />` : ''}
       <h1>${gymName}</h1>
       <p>Fitness & Wellness Center</p>
     </div>

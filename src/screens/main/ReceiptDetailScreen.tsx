@@ -6,6 +6,7 @@ import { cssInterop } from 'nativewind';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useClients } from '@/contexts/ClientContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { formatDate, formatCurrency, getMembershipTypeName } from '@/utils/membership.utils';
 import { generateReceiptHTML } from '@/utils/receipt.utils';
@@ -17,6 +18,7 @@ cssInterop(Download, { className: { target: "style" } });
 const ReceiptDetailScreen = ({ route, navigation }: any) => {
   const { receiptId } = route.params;
   const { receipts } = useClients();
+  const { user } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   
   const receipt = receipts.find(r => r.id === receiptId);
@@ -33,8 +35,12 @@ const ReceiptDetailScreen = ({ route, navigation }: any) => {
     try {
       setIsGenerating(true);
       
-      // Generate HTML
-      const html = generateReceiptHTML(receipt);
+      // Generate HTML with gym branding
+      const html = generateReceiptHTML(
+        receipt,
+        user?.gym_name || 'GYM HUB',
+        user?.gym_logo
+      );
       
       // Generate PDF
       const { uri } = await Print.printToFileAsync({
@@ -172,7 +178,9 @@ const ReceiptDetailScreen = ({ route, navigation }: any) => {
         {/* Footer */}
         <View className="items-center py-6 mb-6">
           <Text className="text-muted-foreground text-sm">Thank you for your payment!</Text>
-          <Text className="text-muted-foreground text-xs mt-2">Gym Hub - Fitness Management</Text>
+          <Text className="text-muted-foreground text-xs mt-2">
+            {user?.gym_name || 'Gym Hub'} - Fitness Management
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
