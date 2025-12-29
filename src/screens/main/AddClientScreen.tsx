@@ -210,6 +210,10 @@ const AddClientScreen = ({ navigation }: any) => {
         Alert.alert('Error', 'Please enter a valid fee amount');
         return false;
       }
+    } else if (selectedPlanIndex === null) {
+      // If not custom, must select a plan
+      Alert.alert('Membership Plan Required', 'Please select a membership plan or choose Custom');
+      return false;
     }
 
     setErrors(newErrors);

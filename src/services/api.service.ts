@@ -138,12 +138,23 @@ export const clientAPI = {
     phone: string;
     email?: string;
     photo?: string;
+    adhar_photo?: string;
     membershipType: string;
     startDate: string;
-    endDate?: string;  // ← ACCEPT THIS
-    fee?: number;      // ← ACCEPT THIS
+    endDate?: string;
+    fee?: number;
   }) => {
-    return await apiRequest('/clients', 'POST', clientData);
+    return await apiRequest('/clients', 'POST', {
+      name: clientData.name,
+      phone: clientData.phone,
+      email: clientData.email,
+      photo: clientData.photo,
+      adharPhoto: clientData.adhar_photo,  // Backend expects camelCase
+      membershipType: clientData.membershipType,  // Backend expects camelCase
+      startDate: clientData.startDate,            // Backend expects camelCase
+      endDate: clientData.endDate,                // Backend expects camelCase
+      fee: clientData.fee,
+    });
   },
 
   update: async (id: string, updates: any) => {
