@@ -50,7 +50,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const response = await authAPI.getCurrentUser();
       if (response.success && response.user) {
-        setUser(response.user);
+        // Transform user data from snake_case to camelCase
+        const transformedUser: User = {
+          ...response.user,
+          gymName: response.user.gym_name || response.user.gymName,
+          gymLogo: response.user.gym_logo || response.user.gymLogo,
+          membershipPlans: response.user.membership_plans || response.user.membershipPlans || []
+        };
+        
+        setUser(transformedUser);
       }
     } catch (error) {
       console.log('No user session found');
@@ -104,8 +112,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await authAPI.login(email, password);
       
       if (response.success && response.user) {
-        setUser(response.user);
-        return { user: response.user };
+        // Transform user data from snake_case to camelCase
+        const transformedUser: User = {
+          ...response.user,
+          gymName: response.user.gym_name || response.user.gymName,
+          gymLogo: response.user.gym_logo || response.user.gymLogo,
+          membershipPlans: response.user.membership_plans || response.user.membershipPlans || []
+        };
+        
+        setUser(transformedUser);
+        return { user: transformedUser };
       }
 
       return { error: response.error || 'Login failed' };
