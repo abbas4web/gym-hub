@@ -45,12 +45,13 @@ const DashboardScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView className="flex-1 px-4">
+        {/* Header with GymHub branding and gym logo */}
         <View className="flex-row justify-between items-center py-6">
           <View>
-            <Text className="text-2xl font-bold text-foreground">Dashboard</Text>
+            <Text className="text-2xl font-bold text-foreground">GymHub</Text>
             <Text className="text-muted-foreground">Welcome back, {user?.name}</Text>
           </View>
-          <View className="flex-row">
+          <View className="flex-row items-center">
             {expiringClients.length > 0 && (
               <TouchableOpacity 
                 className="w-10 h-10 bg-destructive/20 items-center justify-center rounded-xl mr-2"
@@ -62,21 +63,45 @@ const DashboardScreen = ({ navigation }: any) => {
                 </View>
               </TouchableOpacity>
             )}
-            <TouchableOpacity 
-              className="w-10 h-10 bg-primary items-center justify-center rounded-xl"
-              onPress={() => navigation.navigate('Clients')}
-            >
-              <Plus size={24} color="#0d0f14" />
-            </TouchableOpacity>
+            {/* Gym Logo */}
+            {user?.gymLogo ? (
+              <View className="w-12 h-12 rounded-xl overflow-hidden border-2 border-primary">
+                <Image
+                  source={{ uri: user.gymLogo }}
+                  className="w-full h-full"
+                  resizeMode="cover"
+                />
+              </View>
+            ) : (
+              <View className="w-12 h-12 bg-primary/20 rounded-xl items-center justify-center">
+                <Text className="text-primary font-bold text-lg">
+                  {user?.gymName?.charAt(0).toUpperCase() || 'G'}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
 
+        {/* Stats Cards */}
         <View className="flex-row flex-wrap justify-between mb-6">
           <StatCard title="Total Clients" value={clients.length} icon={Users} />
           <StatCard title="Active" value={activeClients.length} icon={UserCheck} />
           <StatCard title="Expired" value={expiredClients.length} icon={UserX} color="#ef4444" />
           <StatCard title="Revenue" value={formatCurrency(totalRevenue)} icon={DollarSign} />
         </View>
+
+        {/* Add Client Button - Centered and Larger */}
+        <TouchableOpacity
+          className="bg-primary rounded-2xl p-6 mb-6 items-center justify-center shadow-lg"
+          onPress={() => navigation.navigate('AddClient')}
+          activeOpacity={0.8}
+        >
+          <View className="w-16 h-16 bg-primary-foreground/10 rounded-full items-center justify-center mb-3">
+            <Plus size={32} color="#0d0f14" />
+          </View>
+          <Text className="text-primary-foreground font-bold text-lg">Add New Client</Text>
+          <Text className="text-primary-foreground/70 text-sm mt-1">Tap to register a new member</Text>
+        </TouchableOpacity>
 
         {expiringClients.length > 0 && (
           <Card className="mb-6 bg-destructive/10 border-destructive/30">
