@@ -13,7 +13,9 @@ interface AuthContextType {
     password: string,
     gymName?: string,
     gymLogo?: string,
-    membershipPlans?: MembershipPlan[]
+    membershipPlans?: MembershipPlan[],
+    gymAddress?: string,
+    gymType?: 'male' | 'female' | 'unisex'
   ) => Promise<{ user?: User; error?: string }>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
@@ -55,6 +57,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           ...response.user,
           gymName: response.user.gym_name || response.user.gymName,
           gymLogo: response.user.gym_logo || response.user.gymLogo,
+          gymAddress: response.user.gym_address || response.user.gymAddress,
+          gymType: response.user.gym_type || response.user.gymType,
           membershipPlans: response.user.membership_plans || response.user.membershipPlans || []
         };
         
@@ -75,7 +79,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     password: string,
     gymName?: string,
     gymLogo?: string,
-    membershipPlans?: { name: string; duration: number; fee: number }[]
+    membershipPlans?: { name: string; duration: number; fee: number }[],
+    gymAddress?: string,
+    gymType?: 'male' | 'female' | 'unisex'
   ): Promise<{ user?: User; error?: string }> => {
     try {
       // Validate
@@ -91,7 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: 'Password must be at least 6 characters' };
       }
 
-      const response = await authAPI.signup(name, email, password, gymName, gymLogo, membershipPlans);
+      const response = await authAPI.signup(name, email, password, gymName, gymLogo, membershipPlans, gymAddress, gymType);
       
       if (response.success && response.user) {
         setUser(response.user);
@@ -117,6 +123,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           ...response.user,
           gymName: response.user.gym_name || response.user.gymName,
           gymLogo: response.user.gym_logo || response.user.gymLogo,
+          gymAddress: response.user.gym_address || response.user.gymAddress,
+          gymType: response.user.gym_type || response.user.gymType,
           membershipPlans: response.user.membership_plans || response.user.membershipPlans || []
         };
         

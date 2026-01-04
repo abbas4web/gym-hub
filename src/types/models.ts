@@ -40,7 +40,19 @@ export interface User {
   profile_image?: string; // base64 or URI
   gym_name?: string;
   gym_logo?: string; // base64 or URI
+  gym_address?: string;
+  gym_type?: 'male' | 'female' | 'unisex';
+  gymName?: string; // camelCase for frontend
+  gymLogo?: string; // camelCase for frontend
+  gymAddress?: string; // camelCase for frontend
+  gymType?: 'male' | 'female' | 'unisex'; // camelCase for frontend
   membership_plans?: MembershipPlan[];
+  membershipPlans?: MembershipPlan[]; // camelCase for frontend
+  subscription?: {
+    plan: 'free' | 'basic' | 'premium';
+    client_limit: number;
+    expires_at?: string;
+  };
   createdAt: string; // ISO date
 }
 

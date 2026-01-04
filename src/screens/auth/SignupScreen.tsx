@@ -32,6 +32,8 @@ const SignupScreen = ({ navigation }: any) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [gymName, setGymName] = useState('');
+  const [gymAddress, setGymAddress] = useState('');
+  const [gymType, setGymType] = useState<'male' | 'female' | 'unisex'>('unisex');
   const [gymLogo, setGymLogo] = useState<string | undefined>(undefined);
   const [membershipPlans, setMembershipPlans] = useState<MembershipPlan[]>([
     { name: '', duration: 1, fee: 0 }
@@ -120,33 +122,30 @@ const SignupScreen = ({ navigation }: any) => {
 
     setIsSubmitting(true);
     
-    // Prepare payload matching backend structure
-    const signupData = {
-      name: name.trim(),
-      email: email.trim(),
+    const result = await signup(
+      name.trim(),
+      email.trim(),
       password,
-      gymName: gymName.trim(),
-      gymLogo: gymLogo || undefined,
-      membershipPlans: membershipPlans.map(plan => ({
+      gymName.trim(),
+      gymLogo,
+      membershipPlans.map(plan => ({
         name: plan.name.trim(),
         duration: Number(plan.duration),
         fee: Number(plan.fee)
-      }))
-    };
-
-    const result = await signup(
-      signupData.name,
-      signupData.email,
-      signupData.password,
-      signupData.gymName,
-      signupData.gymLogo,
-      signupData.membershipPlans
+      })),
+      gymAddress.trim(),
+      gymType
     );
     
     setIsSubmitting(false);
 
     if (result.error) {
       showError('Signup Failed', result.error);
+    } else {
+      showSuccess('Success', 'Account created successfully!');
+      setTimeout(() => {
+        navigation.replace('Main');
+      }, 1500);
     }
   };
 
@@ -241,6 +240,58 @@ const SignupScreen = ({ navigation }: any) => {
             error={errors.gymName}
             icon={<Building2 size={20} color="#a1a1aa" />}
           />
+
+          <Input
+            label="Gym Address"
+            value={gymAddress}
+            onChangeText={setGymAddress}
+            placeholder="Enter your gym address"
+            containerClassName="mt-4"
+            icon={<Building2 size={20} color="#a1a1aa" />}
+          />
+
+          {/* Gym Type Selector */}
+          <View className="mt-4">
+            <Text className="text-foreground font-medium mb-2">Gym Type</Text>
+            <View className="flex-row gap-2">
+              <TouchableOpacity
+                onPress={() => setGymType('male')}
+                className={`flex-1 py-3 px-4 rounded-lg border-2 ${
+                  gymType === 'male' ? 'border-primary bg-primary/10' : 'border-border bg-card'
+                }`}
+              >
+                <Text className={`text-center font-medium ${
+                  gymType === 'male' ? 'text-primary' : 'text-muted-foreground'
+                }`}>
+                  Male
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setGymType('female')}
+                className={`flex-1 py-3 px-4 rounded-lg border-2 ${
+                  gymType === 'female' ? 'border-primary bg-primary/10' : 'border-border bg-card'
+                }`}
+              >
+                <Text className={`text-center font-medium ${
+                  gymType === 'female' ? 'text-primary' : 'text-muted-foreground'
+                }`}>
+                  Female
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setGymType('unisex')}
+                className={`flex-1 py-3 px-4 rounded-lg border-2 ${
+                  gymType === 'unisex' ? 'border-primary bg-primary/10' : 'border-border bg-card'
+                }`}
+              >
+                <Text className={`text-center font-medium ${
+                  gymType === 'unisex' ? 'text-primary' : 'text-muted-foreground'
+                }`}>
+                  Unisex
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
 
           {/* Gym Logo */}
           <View className="mt-4">

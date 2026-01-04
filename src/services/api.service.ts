@@ -89,12 +89,16 @@ export const authAPI = {
     password: string,
     gymName?: string,
     gymLogo?: string,
-    membershipPlans?: { name: string; duration: number; fee: number }[]
+    membershipPlans?: { name: string; duration: number; fee: number }[],
+    gymAddress?: string,
+    gymType?: 'male' | 'female' | 'unisex'
   ) => {
     const payload: any = { name, email, password };
     
     if (gymName) payload.gymName = gymName;
     if (gymLogo) payload.gymLogo = gymLogo;
+    if (gymAddress) payload.gymAddress = gymAddress;
+    if (gymType) payload.gymType = gymType;
     if (membershipPlans && membershipPlans.length > 0) {
       payload.membershipPlans = membershipPlans;
     }
