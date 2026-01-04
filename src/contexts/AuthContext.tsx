@@ -100,8 +100,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await authAPI.signup(name, email, password, gymName, gymLogo, membershipPlans, gymAddress, gymType);
       
       if (response.success && response.user) {
-        setUser(response.user);
-        return { user: response.user };
+        // Transform user data from snake_case to camelCase
+        const transformedUser: User = {
+          ...response.user,
+          gymName: response.user.gym_name || response.user.gymName,
+          gymLogo: response.user.gym_logo || response.user.gymLogo,
+          gymAddress: response.user.gym_address || response.user.gymAddress,
+          gymType: response.user.gym_type || response.user.gymType,
+          membershipPlans: response.user.membership_plans || response.user.membershipPlans || []
+        };
+        
+        setUser(transformedUser);
+        return { user: transformedUser };
       }
 
       return { error: response.error || 'Signup failed' };

@@ -63,22 +63,27 @@ const DashboardScreen = ({ navigation }: any) => {
                 </View>
               </TouchableOpacity>
             )}
-            {/* Gym Logo */}
-            {user?.gymLogo ? (
-              <View className="w-12 h-12 rounded-xl overflow-hidden border-2 border-primary">
-                <Image
-                  source={{ uri: user.gymLogo }}
-                  className="w-full h-full"
-                  resizeMode="cover"
-                />
-              </View>
-            ) : (
-              <View className="w-12 h-12 bg-primary/20 rounded-xl items-center justify-center">
-                <Text className="text-primary font-bold text-lg">
-                  {user?.gymName?.charAt(0).toUpperCase() || 'G'}
-                </Text>
-              </View>
-            )}
+            {/* Gym Logo - Clickable to Settings */}
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Settings')}
+              activeOpacity={0.7}
+            >
+              {user?.gymLogo ? (
+                <View className="w-12 h-12 rounded-xl overflow-hidden border-2 border-primary">
+                  <Image
+                    source={{ uri: user.gymLogo }}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                </View>
+              ) : (
+                <View className="w-12 h-12 bg-primary/20 rounded-xl items-center justify-center">
+                  <Text className="text-primary font-bold text-lg">
+                    {user?.gymName?.charAt(0).toUpperCase() || 'G'}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
 

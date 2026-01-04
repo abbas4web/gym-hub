@@ -89,14 +89,6 @@ const MainTabs = () => {
           tabBarLabel: 'Receipts'
         }}
       />
-      <Tab.Screen 
-        name="Settings" 
-        component={SettingsScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
-          tabBarLabel: 'Settings'
-        }}
-      />
     </Tab.Navigator>
   );
 };
@@ -135,6 +127,10 @@ const Navigation = () => {
               name="Subscription" 
               component={SubscriptionScreen}
               options={{ presentation: 'modal' }}
+            />
+            <Stack.Screen 
+              name="Settings" 
+              component={SettingsScreen}
             />
           </>
         ) : (
