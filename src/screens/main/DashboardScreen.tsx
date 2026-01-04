@@ -120,47 +120,6 @@ const DashboardScreen = ({ navigation }: any) => {
           </Card>
         )}
 
-        <View className="mb-6">
-          <Text className="text-xl font-bold text-foreground mb-4">Recent Activity</Text>
-          {clients.length === 0 ? (
-            <Card className="items-center py-8">
-              <Users size={40} color="#a1a1aa" />
-              <Text className="text-muted-foreground mt-4">No clients yet</Text>
-              <Text className="text-muted-foreground text-sm">Add your first client to get started</Text>
-            </Card>
-          ) : (
-            clients.slice(0, 5).map(client => (
-              <TouchableOpacity 
-                key={client.id}
-                onPress={() => navigation.navigate('ClientDetail', { clientId: client.id })}
-              >
-                <Card className="mb-3">
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center flex-1">
-                    {client.photo ? (
-                      <Image
-                        source={{ uri: client.photo }}
-                        className="w-10 h-10 rounded-full mr-3"
-                      />
-                    ) : (
-                      <View className="w-10 h-10 bg-primary/20 rounded-full items-center justify-center mr-3">
-                        <Text className="text-primary font-bold">{client.name.charAt(0)}</Text>
-                      </View>
-                    )}
-                    <View className="flex-1">
-                      <Text className="text-foreground font-medium">{client.name}</Text>
-                      <Text className="text-muted-foreground text-xs">{client.membershipType}</Text>
-                    </View>
-                  </View>
-                  <Badge variant={client.isActive ? 'active' : 'expired'}>
-                    {client.isActive ? 'Active' : 'Expired'}
-                  </Badge>
-                </View>
-              </Card>
-            </TouchableOpacity>
-            ))
-          )}
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
