@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useClients } from '@/contexts/ClientContext';
 import { Search, Plus } from 'lucide-react-native';
@@ -12,9 +12,31 @@ cssInterop(Plus, { className: { target: "style" } });
 
 const ClientsScreen = ({ navigation }: any) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Pending' | 'Expired'>('All');
   const { clients, isLoading, searchClients } = useClients();
 
-  const filteredClients = searchClients(searchQuery);
+  const getFilteredClients = () => {
+    // First apply search
+    let filtered = searchClients(searchQuery);
+
+    // Then apply status filter
+    if (statusFilter === 'All') return filtered;
+
+    return filtered.filter(client => {
+      switch (statusFilter) {
+        case 'Active':
+          return client.isActive && !!client.adharPhoto;
+        case 'Pending':
+          return client.isActive && !client.adharPhoto;
+        case 'Expired':
+          return !client.isActive;
+        default:
+          return true;
+      }
+    });
+  };
+
+  const filteredClients = getFilteredClients();
 
   if (isLoading) {
     return (
@@ -42,8 +64,35 @@ const ClientsScreen = ({ navigation }: any) => {
           onChangeText={setSearchQuery}
           placeholder="Search clients..."
           icon={<Search size={20} color="#a1a1aa" />}
-          containerClassName="mb-6"
+          containerClassName="mb-4"
         />
+
+        {/* Status Filters */}
+        <View className="mb-6">
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 8 }}
+          >
+            {['All', 'Active', 'Pending', 'Expired'].map((status) => (
+              <TouchableOpacity
+                key={status}
+                onPress={() => setStatusFilter(status as any)}
+                className={`px-4 py-2 rounded-full border ${
+                  statusFilter === status 
+                    ? 'bg-primary border-primary' 
+                    : 'bg-card border-border'
+                }`}
+              >
+                <Text className={`text-sm font-medium ${
+                  statusFilter === status ? 'text-primary-foreground' : 'text-muted-foreground'
+                }`}>
+                  {status}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
         <FlatList
           data={filteredClients}
@@ -57,11 +106,15 @@ const ClientsScreen = ({ navigation }: any) => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
           ListEmptyComponent={
-            <View className="items-center justify-center py-20">
-              <Text className="text-muted-foreground">
-                {searchQuery ? 'No clients found' : 'No clients yet'}
+            <View className="items-center justify-center py-20 px-8">
+              <Text className="text-muted-foreground text-center">
+                {searchQuery 
+                  ? `No clients matching "${searchQuery}"`
+                  : statusFilter === 'All'
+                    ? "You haven't added any clients yet"
+                    : `No ${statusFilter.toLowerCase()} clients found`}
               </Text>
-              {!searchQuery && (
+              {!searchQuery && statusFilter === 'All' && (
                 <TouchableOpacity
                   onPress={() => navigation.navigate('AddClient')}
                   className="mt-4 bg-primary px-6 py-3 rounded-xl"
