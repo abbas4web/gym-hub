@@ -134,7 +134,7 @@ export const authAPI = {
 // Client API
 export const clientAPI = {
   getAll: async () => {
-    return await apiRequest('/clients', 'GET');
+    return await apiRequest('/clients?limit=1000', 'GET');
   },
 
   add: async (clientData: {

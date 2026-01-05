@@ -3,11 +3,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClients } from '@/contexts/ClientContext';
 import { useState } from 'react';
-import { Users, UserCheck, UserX, IndianRupee, Plus, Bell, Eye, EyeOff } from 'lucide-react-native';
+import { Users, UserCheck, UserX, IndianRupee, Plus, Bell, Eye, EyeOff, Clock } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { getExpiringClients, formatCurrency } from '@/utils/membership.utils';
+import { getExpiringClients, getExpiredClients, formatCurrency } from '@/utils/membership.utils';
 
 cssInterop(Users, { className: { target: "style" } });
 cssInterop(UserCheck, { className: { target: "style" } });
@@ -17,6 +17,7 @@ cssInterop(Plus, { className: { target: "style" } });
 cssInterop(Bell, { className: { target: "style" } });
 cssInterop(Eye, { className: { target: "style" } });
 cssInterop(EyeOff, { className: { target: "style" } });
+cssInterop(Clock, { className: { target: "style" } });
 
 const StatCard = ({ title, value, icon: Icon, color = "#84cc16" }: any) => (
   <Card className="flex-1 mr-2 mb-2 min-w-[150px]">
@@ -33,10 +34,13 @@ const DashboardScreen = ({ navigation }: any) => {
   const { clients, isLoading } = useClients();
   const [showRevenue, setShowRevenue] = useState(false); // Hidden by default
 
-  const activeClients = clients.filter(c => c.isActive);
+  const activeClients = clients.filter(c => c.isActive && !!c.adharPhoto);
+  const pendingClients = clients.filter(c => c.isActive && !c.adharPhoto);
   const expiredClients = clients.filter(c => !c.isActive);
   const totalRevenue = clients.reduce((sum, c) => sum + c.fee, 0);
   const expiringClients = getExpiringClients(clients, 7);
+  const recentlyExpiredClients = getExpiredClients(clients, 30);
+  const notificationCount = expiringClients.length + recentlyExpiredClients.length;
 
   if (isLoading) {
     return (
@@ -56,17 +60,15 @@ const DashboardScreen = ({ navigation }: any) => {
             <Text className="text-muted-foreground">Welcome back, {user?.name}</Text>
           </View>
           <View className="flex-row items-center">
-            {expiringClients.length > 0 && (
-              <TouchableOpacity 
-                className="w-10 h-10 bg-destructive/20 items-center justify-center rounded-xl mr-2"
-                onPress={() => navigation.navigate('NotificationCenter')}
-              >
-                <Bell size={20} color="#ef4444" />
-                <View className="absolute -top-1 -right-1 w-5 h-5 bg-destructive rounded-full items-center justify-center">
-                  <Text className="text-white text-xs font-bold">{expiringClients.length}</Text>
+            <TouchableOpacity 
+              className="w-10 h-10 items-center justify-center rounded-xl mr-4 bg-primary/20"
+              onPress={() => navigation.navigate('NotificationCenter')}
+            >
+              <Bell size={20} color="#84cc16" />
+                <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full items-center justify-center bg-primary">
+                  <Text className="text-white text-xs font-bold">{notificationCount}</Text>
                 </View>
-              </TouchableOpacity>
-            )}
+            </TouchableOpacity>
             {/* Gym Logo - Clickable to Settings */}
             <TouchableOpacity
               onPress={() => navigation.navigate('Settings')}
@@ -93,8 +95,9 @@ const DashboardScreen = ({ navigation }: any) => {
 
         {/* Stats Cards */}
         <View className="flex-row flex-wrap justify-between mb-6">
-          <StatCard title="Total Clients" value={clients.length} icon={Users} />
+          <StatCard title="Total" value={clients.length} icon={Users} />
           <StatCard title="Active" value={activeClients.length} icon={UserCheck} />
+          <StatCard title="Pending" value={pendingClients.length} icon={Clock} color="#f59e0b" />
           <StatCard title="Expired" value={expiredClients.length} icon={UserX} color="#ef4444" />
           
           {/* Revenue Card with Hide/Show Toggle */}
@@ -131,17 +134,7 @@ const DashboardScreen = ({ navigation }: any) => {
           <Text className="text-primary-foreground/70 text-sm mt-1">Tap to register a new member</Text>
         </TouchableOpacity>
 
-        {expiringClients.length > 0 && (
-          <Card className="mb-6 bg-destructive/10 border-destructive/30">
-            <View className="flex-row items-center mb-2">
-              <Bell size={16} color="#ef4444" />
-              <Text className="text-destructive font-bold ml-2">Expiring Soon</Text>
-            </View>
-            <Text className="text-muted-foreground text-sm">
-              {expiringClients.length} membership{expiringClients.length > 1 ? 's' : ''} expiring within 7 days
-            </Text>
-          </Card>
-        )}
+
 
       </ScrollView>
     </SafeAreaView>

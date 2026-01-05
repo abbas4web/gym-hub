@@ -198,8 +198,8 @@ const AddClientScreen = ({ navigation }: any) => {
 
     if (!phone.trim()) {
       newErrors.phone = 'Phone is required';
-    } else if (!/^\d{10}$/.test(phone.replace(/\D/g, ''))) {
-      newErrors.phone = 'Phone must be 10 digits';
+    } else if (!/^\d{10}$/.test(phone)) {
+      newErrors.phone = 'Phone must be exactly 10 digits';
     }
 
     if (email && !/\S+@\S+\.\S+/.test(email)) {
@@ -236,8 +236,8 @@ const AddClientScreen = ({ navigation }: any) => {
 
     if (!phone.trim()) {
       newErrors.phone = 'Phone number is required';
-    } else if (phone.length < 10) {
-      newErrors.phone = 'Phone number must be at least 10 digits';
+    } else if (!/^\d{10}$/.test(phone)) {
+      newErrors.phone = 'Phone number must be exactly 10 digits';
     }
 
     if (email && !/\S+@\S+\.\S+/.test(email)) {
@@ -410,11 +410,14 @@ const AddClientScreen = ({ navigation }: any) => {
             label="Phone Number *"
             value={phone}
             onChangeText={(text) => {
-              setPhone(text);
+              // Only allow numbers and max 10 digits
+              const cleaned = text.replace(/[^0-9]/g, '').slice(0, 10);
+              setPhone(cleaned);
               setErrors({ ...errors, phone: undefined });
             }}
-            placeholder="10-digit phone number"
+            placeholder="10-digit contact number"
             keyboardType="phone-pad"
+            maxLength={10}
             error={errors.phone}
             icon={<Phone size={20} color="#a1a1aa" />}
             containerClassName="mb-4"

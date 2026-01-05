@@ -134,8 +134,8 @@ const EditClientScreen = ({ route, navigation }: any) => {
 
     if (!phone.trim()) {
       newErrors.phone = 'Phone number is required';
-    } else if (!/^\d{10}$/.test(phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'Please enter a valid 10-digit phone number';
+    } else if (!/^\d{10}$/.test(phone)) {
+      newErrors.phone = 'Please enter exactly 10 digits';
     }
 
     if (email && !/\S+@\S+\.\S+/.test(email)) {
@@ -251,11 +251,14 @@ const EditClientScreen = ({ route, navigation }: any) => {
               label="Phone Number"
               value={phone}
               onChangeText={(text) => {
-                setPhone(text);
+                // Only allow numbers and max 10 digits
+                const cleaned = text.replace(/[^0-9]/g, '').slice(0, 10);
+                setPhone(cleaned);
                 setErrors({ ...errors, phone: undefined });
               }}
-              placeholder="Enter phone number"
+              placeholder="10-digit contact number"
               keyboardType="phone-pad"
+              maxLength={10}
               error={errors.phone}
               icon={<Phone size={20} color="#a1a1aa" />}
               containerClassName="mt-4"

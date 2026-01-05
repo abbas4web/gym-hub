@@ -26,6 +26,7 @@ import ReceiptsScreen from '@/screens/main/ReceiptsScreen';
 import ReceiptDetailScreen from '@/screens/main/ReceiptDetailScreen';
 import SettingsScreen from '@/screens/main/SettingsScreen';
 import EditProfileScreen from '@/screens/main/EditProfileScreen';
+import NotificationCenterScreen from '@/screens/main/NotificationCenterScreen';
 import AddClientScreen from '@/screens/main/AddClientScreen';
 import EditClientScreen from '@/screens/main/EditClientScreen';
 import SubscriptionScreen from '@/screens/main/SubscriptionScreen';
@@ -118,6 +119,10 @@ const Navigation = () => {
             <Stack.Screen 
               name="Settings" 
               component={SettingsScreen}
+            />
+            <Stack.Screen 
+              name="NotificationCenter" 
+              component={NotificationCenterScreen}
             />
           </>
         ) : (

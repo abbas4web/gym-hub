@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useClients } from '@/contexts/ClientContext';
 import { Search, Plus } from 'lucide-react-native';
@@ -13,7 +13,14 @@ cssInterop(Plus, { className: { target: "style" } });
 const ClientsScreen = ({ navigation }: any) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Pending' | 'Expired'>('All');
-  const { clients, isLoading, searchClients } = useClients();
+  const [refreshing, setRefreshing] = useState(false);
+  const { clients, isLoading, searchClients, refreshData } = useClients();
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refreshData();
+    setRefreshing(false);
+  };
 
   const getFilteredClients = () => {
     // First apply search
@@ -105,6 +112,14 @@ const ClientsScreen = ({ navigation }: any) => {
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#84cc16']} // Theme primary color
+              tintColor="#84cc16"
+            />
+          }
           ListEmptyComponent={
             <View className="items-center justify-center py-20 px-8">
               <Text className="text-muted-foreground text-center">

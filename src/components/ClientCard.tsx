@@ -13,7 +13,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
   const daysUntilExpiry = getDaysUntilExpiry(client.endDate);
   
   const getBadgeVariant = () => {
-    if (!client.isActive) return 'expired';
+    if (!client.isActive) return 'active';
     if (daysUntilExpiry <= 7) return 'expiring';
     return 'active';
   };

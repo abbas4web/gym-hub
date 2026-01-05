@@ -87,7 +87,7 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
               Pending
             </Badge>
           ) : (
-            <Badge variant={client.isActive ? 'active' : 'expired'}>
+            <Badge variant={client.isActive ? 'active' : 'active'}>
               {client.isActive ? 'Active' : 'Expired'}
             </Badge>
           )}
@@ -169,7 +169,7 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
           </View>
 
           <View className="flex-row items-center py-3 border-b border-border">
-            <Calendar size={20} color="#ef4444" />
+            <Calendar size={20} color="#84cc16" />
             <View className="ml-3 flex-1">
               <Text className="text-muted-foreground text-xs">End Date</Text>
               <Text className="text-foreground">{formatDate(client.endDate)}</Text>
