@@ -2,7 +2,8 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClients } from '@/contexts/ClientContext';
-import { Users, UserCheck, UserX, DollarSign, Plus, Bell } from 'lucide-react-native';
+import { useState } from 'react';
+import { Users, UserCheck, UserX, IndianRupee, Plus, Bell, Eye, EyeOff } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -11,9 +12,11 @@ import { getExpiringClients, formatCurrency } from '@/utils/membership.utils';
 cssInterop(Users, { className: { target: "style" } });
 cssInterop(UserCheck, { className: { target: "style" } });
 cssInterop(UserX, { className: { target: "style" } });
-cssInterop(DollarSign, { className: { target: "style" } });
+cssInterop(IndianRupee, { className: { target: "style" } });
 cssInterop(Plus, { className: { target: "style" } });
 cssInterop(Bell, { className: { target: "style" } });
+cssInterop(Eye, { className: { target: "style" } });
+cssInterop(EyeOff, { className: { target: "style" } });
 
 const StatCard = ({ title, value, icon: Icon, color = "#84cc16" }: any) => (
   <Card className="flex-1 mr-2 mb-2 min-w-[150px]">
@@ -28,6 +31,7 @@ const StatCard = ({ title, value, icon: Icon, color = "#84cc16" }: any) => (
 const DashboardScreen = ({ navigation }: any) => {
   const { user } = useAuth();
   const { clients, isLoading } = useClients();
+  const [showRevenue, setShowRevenue] = useState(true);
 
   const activeClients = clients.filter(c => c.isActive);
   const expiredClients = clients.filter(c => !c.isActive);
@@ -92,7 +96,26 @@ const DashboardScreen = ({ navigation }: any) => {
           <StatCard title="Total Clients" value={clients.length} icon={Users} />
           <StatCard title="Active" value={activeClients.length} icon={UserCheck} />
           <StatCard title="Expired" value={expiredClients.length} icon={UserX} color="#ef4444" />
-          <StatCard title="Revenue" value={formatCurrency(totalRevenue)} icon={DollarSign} />
+          
+          {/* Revenue Card with Hide/Show Toggle */}
+          <Card className="flex-1 mr-2 mb-2 min-w-[150px]">
+            <View className="flex-row justify-between items-start mb-2">
+              <View className="flex-row items-center gap-2">
+                <IndianRupee size={20} color="#84cc16" />
+                <Text className="text-xs text-muted-foreground">Revenue</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowRevenue(!showRevenue)}>
+                {showRevenue ? (
+                  <Eye size={16} color="#A1A1AA" />
+                ) : (
+                  <EyeOff size={16} color="#A1A1AA" />
+                )}
+              </TouchableOpacity>
+            </View>
+            <Text className="text-2xl font-bold text-foreground">
+              {showRevenue ? formatCurrency(totalRevenue) : '••••••'}
+            </Text>
+          </Card>
         </View>
 
         {/* Add Client Button - Centered and Larger */}

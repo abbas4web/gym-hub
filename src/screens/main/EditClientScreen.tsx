@@ -164,12 +164,13 @@ const EditClientScreen = ({ route, navigation }: any) => {
       const newPlanName = selectedPlan.name.toLowerCase().trim();
       const planChanged = currentPlanName !== newPlanName;
       
+      // Keep the original start date - don't reset it!
       let startDate = client.startDate;
       let endDate = client.endDate;
       
-      // If plan changed, recalculate dates from today
+      // If plan changed, recalculate ONLY the end date from the ORIGINAL start date
       if (planChanged) {
-        startDate = new Date().toISOString();
+        // Keep original start date, recalculate end date based on new plan
         endDate = calculateEndDate(startDate, selectedPlan.name as MembershipType);
       }
 
