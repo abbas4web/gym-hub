@@ -52,9 +52,16 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
             </Text>
           </View>
         </View>
-        <Badge variant={getBadgeVariant()}>
-          {getStatusText()}
-        </Badge>
+        {/* Show Pending if no Aadhar, otherwise show membership status */}
+        {!client.adharPhoto ? (
+          <Badge variant="warning">
+            Pending
+          </Badge>
+        ) : (
+          <Badge variant={getBadgeVariant()}>
+            {getStatusText()}
+          </Badge>
+        )}
       </View>
 
       <View className="flex-row mt-4 pt-4 border-t border-border justify-between">

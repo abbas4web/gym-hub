@@ -162,7 +162,20 @@ export const clientAPI = {
   },
 
   update: async (id: string, updates: any) => {
-    return await apiRequest(`/clients/${id}`, 'PUT', updates);
+    // Backend expects camelCase field names as shown in the API documentation
+    const payload: any = {};
+    
+    if (updates.name) payload.name = updates.name;
+    if (updates.phone) payload.phone = updates.phone;
+    if (updates.email !== undefined) payload.email = updates.email;
+    if (updates.photo !== undefined) payload.photo = updates.photo;
+    if (updates.adharPhoto !== undefined) payload.adharPhoto = updates.adharPhoto;
+    if (updates.membershipType) payload.membershipType = updates.membershipType;
+    if (updates.startDate) payload.startDate = updates.startDate;
+    if (updates.endDate) payload.endDate = updates.endDate;
+    if (updates.fee !== undefined) payload.fee = updates.fee;
+    
+    return await apiRequest(`/clients/${id}`, 'PUT', payload);
   },
 
   delete: async (id: string) => {
@@ -186,6 +199,10 @@ export const receiptAPI = {
 
   getClientReceipts: async (clientId: string) => {
     return await apiRequest(`/receipts/client/${clientId}`, 'GET');
+  },
+
+  delete: async (id: string) => {
+    return await apiRequest(`/receipts/${id}`, 'DELETE');
   },
 };
 

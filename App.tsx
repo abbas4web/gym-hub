@@ -7,7 +7,6 @@ import { StatusBar } from 'expo-status-bar';
 import { LogBox } from 'react-native';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ClientProvider } from '@/contexts/ClientContext';
 import { Home, Users, Receipt, Settings, BarChart3 } from 'lucide-react-native';
 
@@ -29,17 +28,8 @@ import SettingsScreen from '@/screens/main/SettingsScreen';
 import EditProfileScreen from '@/screens/main/EditProfileScreen';
 import AnalyticsScreen from '@/screens/main/AnalyticsScreen';
 import AddClientScreen from '@/screens/main/AddClientScreen';
-
-// Placeholder for Subscription screen
-const SubscriptionScreen = () => {
-  const { View, Text, SafeAreaView } = require('react-native');
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#0d0f14', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-      <Text style={{ color: '#fcfcfc', fontSize: 24, fontWeight: 'bold', marginBottom: 10 }}>Subscription Plans</Text>
-      <Text style={{ color: '#a1a1aa', textAlign: 'center' }}>Coming soon! Upgrade to Pro or Business plans.</Text>
-    </SafeAreaView>
-  );
-};
+import EditClientScreen from '@/screens/main/EditClientScreen';
+import SubscriptionScreen from '@/screens/main/SubscriptionScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -116,6 +106,11 @@ const Navigation = () => {
               component={ClientDetailScreen}
             />
             <Stack.Screen 
+              name="EditClient" 
+              component={EditClientScreen}
+              options={{ presentation: 'modal' }}
+            />
+            <Stack.Screen 
               name="ReceiptDetail" 
               component={ReceiptDetailScreen}
             />
@@ -148,16 +143,14 @@ const Navigation = () => {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <SubscriptionProvider>
-            <ClientProvider>
-              <Navigation />
-              <StatusBar style="light" />
-            </ClientProvider>
-          </SubscriptionProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <SubscriptionProvider>
+          <ClientProvider>
+            <Navigation />
+            <StatusBar style="light" />
+          </ClientProvider>
+        </SubscriptionProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

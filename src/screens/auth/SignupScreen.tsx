@@ -161,9 +161,11 @@ const SignupScreen = ({ navigation }: any) => {
           keyboardShouldPersistTaps="handled"
         >
           <View className="items-center mb-8">
-            <View className="w-20 h-20 bg-primary/20 rounded-2xl items-center justify-center mb-4">
-              <Dumbbell size={40} color="#84cc16" />
-            </View>
+            <Image 
+              source={require('@/assets/icons/Icon.png')} 
+              style={{ width: 200, height: 80, marginBottom: 16 }}
+              resizeMode="contain"
+            />
             <Text className="text-3xl font-bold text-foreground">Create Account</Text>
             <Text className="text-muted-foreground mt-2">Start managing your gym today</Text>
           </View>

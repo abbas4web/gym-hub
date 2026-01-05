@@ -44,14 +44,28 @@ export const getMembershipFee = (type: MembershipType): number => {
 /**
  * Calculate end date based on start date and membership type
  */
-export const calculateEndDate = (startDate: string, membershipType: MembershipType): string => {
+export const calculateEndDate = (startDate: string, membershipType: MembershipType | string): string => {
   const start = new Date(startDate);
-  const months = getMembershipDuration(membershipType);
   
-  const endDate = new Date(start);
-  endDate.setMonth(endDate.getMonth() + months);
+  // Normalize the membership type to lowercase for comparison
+  const normalizedType = typeof membershipType === 'string' ? membershipType.toLowerCase() : membershipType;
   
-  return endDate.toISOString();
+  // Get duration in months based on type
+  let months = 1; // default to monthly
+  
+  if (normalizedType === 'monthly') {
+    months = 1;
+  } else if (normalizedType === 'quarterly') {
+    months = 3;
+  } else if (normalizedType === 'yearly') {
+    months = 12;
+  }
+  
+  // Add months to start date
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + months);
+  
+  return end.toISOString();
 };
 
 /**

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Share2, Download } from 'lucide-react-native';
+import { ArrowLeft, Share2 } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -10,16 +10,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { formatDate, formatCurrency, getMembershipTypeName } from '@/utils/membership.utils';
 import { generateReceiptHTML } from '@/utils/receipt.utils';
+import { usePopup } from '@/hooks/usePopup';
+import CustomPopup from '@/components/CustomPopup';
 
 cssInterop(ArrowLeft, { className: { target: "style" } });
 cssInterop(Share2, { className: { target: "style" } });
-cssInterop(Download, { className: { target: "style" } });
 
 const ReceiptDetailScreen = ({ route, navigation }: any) => {
   const { receiptId } = route.params;
   const { receipts } = useClients();
   const { user } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
+  const { popupState, showError, hidePopup } = usePopup();
   
   const receipt = receipts.find(r => r.id === receiptId);
 
@@ -56,11 +58,11 @@ const ReceiptDetailScreen = ({ route, navigation }: any) => {
           UTI: 'com.adobe.pdf',
         });
       } else {
-        Alert.alert('Error', 'Sharing is not available on this device');
+        showError('Error', 'Sharing is not available on this device');
       }
     } catch (error) {
       console.error('PDF generation error:', error);
-      Alert.alert('Error', 'Failed to generate PDF receipt');
+      showError('Error', 'Failed to generate PDF receipt');
     } finally {
       setIsGenerating(false);
     }
@@ -68,6 +70,8 @@ const ReceiptDetailScreen = ({ route, navigation }: any) => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
+      <CustomPopup {...popupState} onClose={hidePopup} />
+      
       {/* Header */}
       <View className="px-6 py-4 border-b border-border flex-row justify-between items-center">
         <TouchableOpacity onPress={() => navigation.goBack()}>

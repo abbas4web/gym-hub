@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dumbbell, Mail, Lock } from 'lucide-react-native';
@@ -63,10 +63,12 @@ const LoginScreen = ({ navigation }: any) => {
           contentContainerStyle={{ justifyContent: 'center', flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="items-center mb-12">
-            <View className="w-20 h-20 bg-primary/20 rounded-2xl items-center justify-center mb-4">
-              <Dumbbell size={40} color="#84cc16" />
-            </View>
+          <View className="items-center mb-7">
+            <Image 
+              source={require('@/assets/icons/Icon.png')} 
+              style={{ width: 200, height: 80, marginBottom: 16 }}
+              resizeMode="contain"
+            />
             <Text className="text-3xl font-bold text-foreground">Welcome Back</Text>
             <Text className="text-muted-foreground mt-2">Sign in to your gym account</Text>
           </View>

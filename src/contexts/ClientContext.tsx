@@ -11,6 +11,7 @@ interface ClientContextType {
   addClient: (clientData: Omit<Client, 'id' | 'createdAt' | 'isActive'> & { endDate?: string; fee?: number }) => Promise<void>;
   updateClient: (id: string, updates: Partial<Client>) => Promise<void>;
   deleteClient: (id: string) => Promise<void>;
+  deleteReceipt: (id: string) => Promise<void>;
   renewMembership: (id: string, membershipType: string) => Promise<void>;
   searchClients: (query: string) => Client[];
   refreshData: () => Promise<void>;
@@ -151,8 +152,21 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await clientAPI.update(id, updates);
 
-      if (response.success) {
-        setClients(prev => prev.map(c => c.id === id ? response.client : c));
+      if (response.success && response.client) {
+        // Transform backend response from snake_case to camelCase
+        const transformedClient: Client = {
+          ...response.client,
+          adharPhoto: response.client.adhar_photo || response.client.adharPhoto,
+          membershipType: response.client.membership_type || response.client.membershipType,
+          startDate: response.client.start_date || response.client.startDate,
+          endDate: response.client.end_date || response.client.endDate,
+          createdAt: response.client.created_at || response.client.createdAt,
+          isActive: response.client.is_active !== undefined ? response.client.is_active : response.client.isActive
+        };
+        
+        setClients(prev => prev.map(c => c.id === id ? transformedClient : c));
+      } else {
+        throw new Error(response.error || 'Failed to update client');
       }
     } catch (error: any) {
       throw new Error(error.message || 'Failed to update client');
@@ -162,13 +176,30 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
   const deleteClient = async (id: string) => {
     try {
       const response = await clientAPI.delete(id);
-
+      
       if (response.success) {
         setClients(prev => prev.filter(c => c.id !== id));
+        // Also remove receipts for this client
         setReceipts(prev => prev.filter(r => r.clientId !== id));
+      } else {
+        throw new Error(response.error || 'Failed to delete client');
       }
     } catch (error: any) {
       throw new Error(error.message || 'Failed to delete client');
+    }
+  };
+
+  const deleteReceipt = async (id: string) => {
+    try {
+      const response = await receiptAPI.delete(id);
+      
+      if (response.success) {
+        setReceipts(prev => prev.filter(r => r.id !== id));
+      } else {
+        throw new Error(response.error || 'Failed to delete receipt');
+      }
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to delete receipt');
     }
   };
 
@@ -216,6 +247,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
         addClient,
         updateClient,
         deleteClient,
+        deleteReceipt,
         renewMembership,
         searchClients,
         refreshData
