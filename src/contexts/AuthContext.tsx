@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await authAPI.login(email, password);
       
       if (response.success && response.user) {
-        // Transform user data from snake_case to camelCase
+        // First set the user from login response
         const transformedUser: User = {
           ...response.user,
           gymName: response.user.gym_name || response.user.gymName,
@@ -139,6 +139,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
         
         setUser(transformedUser);
+        
+        // Fetch complete user data to ensure all gym info is loaded
+        try {
+          const userResponse = await authAPI.getCurrentUser();
+          if (userResponse.success && userResponse.user) {
+            const completeUser: User = {
+              ...userResponse.user,
+              gymName: userResponse.user.gym_name || userResponse.user.gymName,
+              gymLogo: userResponse.user.gym_logo || userResponse.user.gymLogo,
+              gymAddress: userResponse.user.gym_address || userResponse.user.gymAddress,
+              gymType: userResponse.user.gym_type || userResponse.user.gymType,
+              membershipPlans: userResponse.user.membership_plans || userResponse.user.membershipPlans || []
+            };
+            setUser(completeUser);
+          }
+        } catch (error) {
+          console.log('Could not fetch complete user data:', error);
+        }
+        
         return { user: transformedUser };
       }
 
