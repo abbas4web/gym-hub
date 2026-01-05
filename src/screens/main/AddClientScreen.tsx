@@ -5,19 +5,22 @@ import * as ImagePicker from 'expo-image-picker';
 import { useClients } from '@/contexts/ClientContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Mail, Phone, Calendar, Camera } from 'lucide-react-native';
+import { User, Mail, Phone, Calendar, Camera, ArrowLeft } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { MembershipType } from '@/types/models';
 import { getMembershipFee, calculateEndDate, formatDate, formatCurrency } from '@/utils/membership.utils';
+import { usePopup } from '@/hooks/usePopup';
+import CustomPopup from '@/components/CustomPopup';
 
 cssInterop(User, { className: { target: "style" } });
 cssInterop(Mail, { className: { target: "style" } });
 cssInterop(Phone, { className: { target: "style" } });
 cssInterop(Calendar, { className: { target: "style" } });
 cssInterop(Camera, { className: { target: "style" } });
+cssInterop(ArrowLeft, { className: { target: "style" } });
 
 const AddClientScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
@@ -31,10 +34,12 @@ const AddClientScreen = ({ navigation }: any) => {
   const [customFee, setCustomFee] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
+  const [currentStep, setCurrentStep] = useState(1); // 1 = Basic Details, 2 = Aadhar Upload
 
   const { addClient } = useClients();
   const { canAddClient } = useSubscription();
   const { user } = useAuth();
+  const { popupState, showSuccess, showError, hidePopup } = usePopup();
 
   // Get admin's membership plans or use empty array
   const adminPlans = user?.membership_plans || [];
@@ -127,7 +132,8 @@ const AddClientScreen = ({ navigation }: any) => {
         { text: 'Take Photo', onPress: takePhoto },
         { text: 'Choose from Gallery', onPress: pickImageFromGallery },
         { text: 'Cancel', style: 'cancel' },
-      ]
+      ],
+      { cancelable: true }
     );
   };
 
@@ -220,18 +226,64 @@ const AddClientScreen = ({ navigation }: any) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Step 1 Validation
+  const validateStep1 = (): string | null => {
+    const newErrors: { name?: string; phone?: string; email?: string } = {};
+
+    if (!name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+
+    if (!phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (phone.length < 10) {
+      newErrors.phone = 'Phone number must be at least 10 digits';
+    }
+
+    if (email && !/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Invalid email format';
+    }
+
+    if (selectedPlanIndex === null && !isCustom) {
+      return 'Please select a membership plan';
+    }
+
+    if (isCustom && (!customDuration || !customFee)) {
+      return 'Please enter custom duration and fee';
+    }
+
+    setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length > 0) {
+      return Object.values(newErrors)[0];
+    }
+
+    return null;
+  };
+
+  // Handle Next Button (Step 1 → Step 2)
+  const handleNext = () => {
+    const error = validateStep1();
+    if (error) {
+      showError('Validation Error', error);
+      return;
+    }
+    setCurrentStep(2);
+  };
+
+  // Handle Back Button (Step 2 → Step 1)
+  const handleBack = () => {
+    setCurrentStep(1);
+  };
+
   const handleAddClient = async () => {
     if (!validate()) return;
 
     const canAdd = await canAddClient();
     if (!canAdd) {
-      Alert.alert(
+      showError(
         'Client Limit Reached',
-        'You have reached the maximum number of clients for your plan. Please upgrade to add more clients.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Upgrade', onPress: () => navigation.navigate('Subscription') },
-        ]
+        'You have reached the maximum number of clients for your plan. Please upgrade to add more clients.'
       );
       return;
     }
@@ -250,12 +302,20 @@ const AddClientScreen = ({ navigation }: any) => {
         fee,      // ← SEND THIS
       });
 
-      Alert.alert('Success', 'Client added successfully', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      // Show different alert based on Aadhar status
+      if (adharPhoto) {
+        showSuccess('Success', 'Client added successfully with Active status!');
+        setTimeout(() => navigation.goBack(), 1500);
+      } else {
+        showSuccess(
+          'Client Added', 
+          'Client added successfully but Aadhar verification is pending. You can upload it later from client details.'
+        );
+        setTimeout(() => navigation.goBack(), 2000);
+      }
     } catch (error: any) {
       console.error('Add client error:', error);
-      Alert.alert('Error', error.message || 'Failed to add client. Please try again.');
+      showError('Error', error.message || 'Failed to add client. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -267,14 +327,44 @@ const AddClientScreen = ({ navigation }: any) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
-        <View className="px-6 py-4 border-b border-border flex-row justify-between items-center">
-          <Text className="text-xl font-bold text-foreground">Add New Client</Text>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text className="text-primary font-medium">Cancel</Text>
-          </TouchableOpacity>
+        <View className="px-6 py-4 border-b border-border">
+          <View className="flex-row justify-between items-center mb-3">
+            {currentStep === 2 ? (
+              <TouchableOpacity onPress={handleBack} className="flex-row items-center">
+                <ArrowLeft size={24} color="#84cc16" />
+                <Text className="text-primary font-medium ml-2">Back</Text>
+              </TouchableOpacity>
+            ) : (
+              <Text className="text-xl font-bold text-foreground">Add New Client</Text>
+            )}
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Text className="text-primary font-medium">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Step Indicator */}
+          <View className="flex-row items-center justify-center">
+            <View className={`w-8 h-8 rounded-full items-center justify-center ${
+              currentStep >= 1 ? 'bg-primary' : 'bg-muted'
+            }`}>
+              <Text className="text-white font-bold text-sm">1</Text>
+            </View>
+            <View className={`w-16 h-1 mx-2 ${currentStep >= 2 ? 'bg-primary' : 'bg-muted'}`} />
+            <View className={`w-8 h-8 rounded-full items-center justify-center ${
+              currentStep >= 2 ? 'bg-primary' : 'bg-muted'
+            }`}>
+              <Text className={`font-bold text-sm ${currentStep >= 2 ? 'text-white' : 'text-muted-foreground'}`}>2</Text>
+            </View>
+          </View>
+          <Text className="text-center text-muted-foreground text-sm mt-2">
+            {currentStep === 1 ? 'Basic Details' : 'Aadhar Verification'}
+          </Text>
         </View>
 
         <ScrollView className="flex-1 px-6 pt-6" keyboardShouldPersistTaps="handled">
+          {/* STEP 1: Basic Details */}
+          {currentStep === 1 && (
+            <>
           {/* Client Photo */}
           <View className="items-center mb-6">
             <Text className="text-muted-foreground text-sm mb-3">Client Photo</Text>
@@ -301,32 +391,7 @@ const AddClientScreen = ({ navigation }: any) => {
             )}
           </View>
 
-          {/* Aadhar Card Photo */}
-          <View className="items-center mb-6">
-            <Text className="text-muted-foreground text-sm mb-3">Aadhar Card Photo</Text>
-            <TouchableOpacity
-              onPress={showAdharImageOptions}
-              className="w-64 h-40 rounded-lg bg-secondary border-2 border-dashed border-border items-center justify-center overflow-hidden"
-            >
-              {adharPhoto ? (
-                <Image source={{ uri: adharPhoto }} className="w-full h-full" resizeMode="contain" />
-              ) : (
-                <View className="items-center">
-                  <Camera size={40} color="#a1a1aa" />
-                  <Text className="text-muted-foreground text-xs mt-2">Add Aadhar Card</Text>
-                  <Text className="text-muted-foreground text-xs mt-1">(Optional)</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-            {adharPhoto && (
-              <TouchableOpacity
-                onPress={() => setAdharPhoto(undefined)}
-                className="mt-2"
-              >
-                <Text className="text-destructive text-sm">Remove Aadhar</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+
 
           <Input
             label="Full Name *"
@@ -448,6 +513,72 @@ const AddClientScreen = ({ navigation }: any) => {
             </View>
           )}
 
+
+            </>
+          )}
+
+          {/* STEP 2: Aadhar Upload */}
+          {currentStep === 2 && (
+            <>
+              {/* Aadhar Photo Upload */}
+              <Card className="mb-6">
+                <Text className="text-foreground font-bold text-lg mb-4">Aadhar Card</Text>
+                <TouchableOpacity
+                  onPress={pickAdharFromGallery}
+                  className="border-2 border-dashed border-border rounded-lg p-4 items-center"
+                >
+                  {adharPhoto ? (
+                    <Image 
+                      source={{ uri: adharPhoto }} 
+                      className="w-full h-48 rounded-lg"
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <View className="items-center py-8">
+                      <Camera size={48} color="#a1a1aa" />
+                      <Text className="text-muted-foreground mt-3">Tap to upload Aadhar card</Text>
+                      <Text className="text-muted-foreground text-xs mt-1">(Optional - can be added later)</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+                {adharPhoto && (
+                  <TouchableOpacity
+                    onPress={() => setAdharPhoto(undefined)}
+                    className="mt-3"
+                  >
+                    <Text className="text-destructive text-center">Remove Aadhar Photo</Text>
+                  </TouchableOpacity>
+                )}
+              </Card>
+
+              {/* Client Summary */}
+              <Card className="mb-6 bg-muted/30">
+                <Text className="text-foreground font-bold mb-3">Client Summary</Text>
+                <View className="space-y-2">
+                  <View className="flex-row justify-between">
+                    <Text className="text-muted-foreground">Name</Text>
+                    <Text className="text-foreground font-medium">{name}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-muted-foreground">Phone</Text>
+                    <Text className="text-foreground font-medium">{phone}</Text>
+                  </View>
+                  {email && (
+                    <View className="flex-row justify-between">
+                      <Text className="text-muted-foreground">Email</Text>
+                      <Text className="text-foreground font-medium">{email}</Text>
+                    </View>
+                  )}
+                  <View className="flex-row justify-between">
+                    <Text className="text-muted-foreground">Membership</Text>
+                    <Text className="text-foreground font-medium">{membershipType}</Text>
+                  </View>
+                </View>
+              </Card>
+            </>
+          )}
+
+          {/* Membership Summary - Show on both steps */}
           <Card className="mb-6 bg-primary/5 border-primary/20">
             <Text className="text-foreground font-bold mb-3">Membership Summary</Text>
             <View className="space-y-2">
@@ -466,10 +597,28 @@ const AddClientScreen = ({ navigation }: any) => {
             </View>
           </Card>
 
-          <Button onPress={handleAddClient} loading={isSubmitting} className="mb-6">
-            Add Client & Generate Receipt
-          </Button>
+          {/* Conditional Buttons */}
+          {currentStep === 1 ? (
+            <Button onPress={handleNext} className="mb-6">
+              Next
+            </Button>
+          ) : (
+            <Button onPress={handleAddClient} loading={isSubmitting} className="mb-6">
+              Add Client & Generate Receipt
+            </Button>
+          )}
         </ScrollView>
+
+        <CustomPopup
+          visible={popupState.visible}
+          type={popupState.type}
+          title={popupState.title}
+          message={popupState.message}
+          confirmText={popupState.confirmText}
+          onConfirm={popupState.onConfirm || hidePopup}
+          cancelText={popupState.cancelText}
+          onClose={hidePopup}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

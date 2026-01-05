@@ -48,7 +48,7 @@ const DashboardScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <ScrollView className="flex-1 px-4">
+      <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header with GymHub branding and gym logo */}
         <View className="flex-row justify-between items-center py-6">
           <View>

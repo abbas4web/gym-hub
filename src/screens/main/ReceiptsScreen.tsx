@@ -29,7 +29,7 @@ const ReceiptsScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="px-4 py-4">
+      <View className="flex-1 px-4 py-4">
         <Text className="text-2xl font-bold text-foreground mb-6">Receipts</Text>
 
         <Input
@@ -50,7 +50,7 @@ const ReceiptsScreen = ({ navigation }: any) => {
           )}
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          contentContainerStyle={{ paddingBottom: 100 }}
           ListEmptyComponent={
             <View className="items-center justify-center py-20">
               <ReceiptIcon size={48} color="#a1a1aa" />

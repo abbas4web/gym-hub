@@ -26,7 +26,7 @@ const ClientsScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="px-4 py-4">
+      <View className="flex-1 px-4 py-4">
         <View className="flex-row justify-between items-center mb-6">
           <Text className="text-2xl font-bold text-foreground">Clients</Text>
           <TouchableOpacity 
@@ -55,7 +55,7 @@ const ClientsScreen = ({ navigation }: any) => {
           )}
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          contentContainerStyle={{ paddingBottom: 100 }}
           ListEmptyComponent={
             <View className="items-center justify-center py-20">
               <Text className="text-muted-foreground">

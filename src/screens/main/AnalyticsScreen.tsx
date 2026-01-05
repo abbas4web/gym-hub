@@ -44,7 +44,7 @@ const AnalyticsScreen = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <ScrollView className="flex-1 px-4">
+      <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 100 }}>
         <View className="py-6">
           <Text className="text-2xl font-bold text-foreground mb-6">Analytics</Text>
 

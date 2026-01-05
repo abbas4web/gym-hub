@@ -213,7 +213,7 @@ const EditClientScreen = ({ route, navigation }: any) => {
           <Text className="text-2xl font-bold text-foreground ml-4">Edit Client</Text>
         </View>
 
-        <ScrollView className="flex-1 px-6 pt-6">
+        <ScrollView className="flex-1 px-6 pt-6" contentContainerStyle={{ paddingBottom: 100 }}>
           {/* Profile Photo */}
           <View className="items-center mb-6">
             <TouchableOpacity onPress={pickImageFromGallery}>
@@ -279,7 +279,7 @@ const EditClientScreen = ({ route, navigation }: any) => {
 
           {/* Aadhar Photo */}
           <Card className="mb-6">
-            <Text className="text-foreground font-bold text-lg mb-4">Aadhar Card (Optional)</Text>
+            <Text className="text-foreground font-bold text-lg mb-4">Aadhar Card</Text>
             <TouchableOpacity
               onPress={pickAdharFromGallery}
               className="border-2 border-dashed border-border rounded-lg p-4 items-center"

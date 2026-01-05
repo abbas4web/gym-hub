@@ -172,7 +172,7 @@ const EditProfileScreen = ({ navigation }: any) => {
         <Text className="text-xl font-bold text-foreground ml-4">Edit Profile</Text>
       </View>
 
-      <ScrollView className="flex-1 px-6 pt-6">
+      <ScrollView className="flex-1 px-6 pt-6" contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Profile Picture */}
         <View className="items-center mb-8">
           <TouchableOpacity

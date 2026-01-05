@@ -42,7 +42,7 @@ const SettingsScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <ScrollView className="flex-1 px-4 py-4">
+      <ScrollView className="flex-1 px-6 pt-6" contentContainerStyle={{ paddingBottom: 100 }}>
         <Text className="text-2xl font-bold text-foreground mb-6">Settings</Text>
 
         {/* User Profile */}

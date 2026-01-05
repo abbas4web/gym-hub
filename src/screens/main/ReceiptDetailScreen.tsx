@@ -87,7 +87,7 @@ const ReceiptDetailScreen = ({ route, navigation }: any) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1 px-6 pt-6">
+      <ScrollView className="flex-1 px-6 pt-6" contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Receipt Card */}
         <Card className="mb-6 bg-gradient-to-br from-primary/10 to-primary/5">
           <View className="items-center py-4 border-b border-border">
