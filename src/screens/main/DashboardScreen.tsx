@@ -31,7 +31,7 @@ const StatCard = ({ title, value, icon: Icon, color = "#84cc16" }: any) => (
 const DashboardScreen = ({ navigation }: any) => {
   const { user } = useAuth();
   const { clients, isLoading } = useClients();
-  const [showRevenue, setShowRevenue] = useState(true);
+  const [showRevenue, setShowRevenue] = useState(false); // Hidden by default
 
   const activeClients = clients.filter(c => c.isActive);
   const expiredClients = clients.filter(c => !c.isActive);
