@@ -8,7 +8,7 @@ import { LogBox } from 'react-native';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { ClientProvider } from '@/contexts/ClientContext';
-import { Home, Users, Receipt, Settings, BarChart3 } from 'lucide-react-native';
+import { Home, Users, Receipt, Settings } from 'lucide-react-native';
 
 // Disable error/warning notifications - we show errors in CustomPopup
 LogBox.ignoreAllLogs(true);
@@ -26,7 +26,6 @@ import ReceiptsScreen from '@/screens/main/ReceiptsScreen';
 import ReceiptDetailScreen from '@/screens/main/ReceiptDetailScreen';
 import SettingsScreen from '@/screens/main/SettingsScreen';
 import EditProfileScreen from '@/screens/main/EditProfileScreen';
-import AnalyticsScreen from '@/screens/main/AnalyticsScreen';
 import AddClientScreen from '@/screens/main/AddClientScreen';
 import EditClientScreen from '@/screens/main/EditClientScreen';
 import SubscriptionScreen from '@/screens/main/SubscriptionScreen';
@@ -63,14 +62,7 @@ const MainTabs = () => {
           tabBarLabel: 'Clients'
         }}
       />
-      <Tab.Screen 
-        name="Analytics" 
-        component={AnalyticsScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} />,
-          tabBarLabel: 'Analytics'
-        }}
-      />
+
       <Tab.Screen 
         name="Receipts" 
         component={ReceiptsScreen}
