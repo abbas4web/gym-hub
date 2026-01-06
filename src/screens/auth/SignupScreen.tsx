@@ -3,7 +3,7 @@ import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacit
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/contexts/AuthContext';
-import { Dumbbell, User, Mail, Lock, Building2, ImageIcon, Plus, Trash2 } from 'lucide-react-native';
+import { Dumbbell, User, Mail, Lock, Building2, ImageIcon, Plus, Trash2, ArrowLeft } from 'lucide-react-native';
 import { styled } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -19,6 +19,7 @@ const StyledBuilding2 = styled(Building2);
 const StyledImageIcon = styled(ImageIcon);
 const StyledPlus = styled(Plus);
 const StyledTrash2 = styled(Trash2);
+const StyledArrowLeft = styled(ArrowLeft);
 
 interface MembershipPlan {
   name: string;
@@ -38,6 +39,7 @@ const SignupScreen = ({ navigation }: any) => {
   const [membershipPlans, setMembershipPlans] = useState<MembershipPlan[]>([
     { name: '', duration: 1, fee: 0 }
   ]);
+  const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<any>({});
   const { signup } = useAuth();
@@ -79,9 +81,8 @@ const SignupScreen = ({ navigation }: any) => {
     setMembershipPlans(updated);
   };
 
-  const validate = () => {
+  const validateStep1 = () => {
     const newErrors: any = {};
-
     if (!name.trim()) newErrors.name = 'Name is required';
     if (!email.trim()) {
       newErrors.email = 'Email is required';
@@ -98,6 +99,17 @@ const SignupScreen = ({ navigation }: any) => {
     } else if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const newErrors: any = {};
+
+    // Step 1 checks removed from here as they are in validateStep1
+    // But we should double check if needed, or just rely on flow.
+    // For final submission we might want to validate all, but separate functions are cleaner.
+    
     if (!gymName.trim()) newErrors.gymName = 'Gym name is required';
     
     // Validate membership plans
@@ -117,8 +129,14 @@ const SignupScreen = ({ navigation }: any) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleNext = () => {
+    if (validateStep1()) {
+      setStep(2);
+    }
+  };
+
   const handleSignup = async () => {
-    if (!validate()) return;
+    if (!validateStep2()) return;
 
     setIsSubmitting(true);
     
@@ -170,222 +188,233 @@ const SignupScreen = ({ navigation }: any) => {
             <Text className="text-muted-foreground mt-2">Start managing your gym today</Text>
           </View>
 
-          {/* Personal Information */}
-          <Text className="text-foreground font-bold text-lg mb-4">Personal Information</Text>
-          
-          <Input
-            label="Full Name"
-            value={name}
-            onChangeText={(text) => {
-              setName(text);
-              setErrors({ ...errors, name: undefined });
-            }}
-            placeholder="Enter your name"
-            error={errors.name}
-            icon={<StyledUser size={20} color="#a1a1aa" />}
-          />
+          {step === 1 && (
+            <>
+              <Text className="text-foreground font-bold text-lg mb-4">Personal Information</Text>
+              
+              <Input
+                label="Full Name"
+                value={name}
+                onChangeText={(text) => {
+                  setName(text);
+                  setErrors({ ...errors, name: undefined });
+                }}
+                placeholder="Enter your name"
+                error={errors.name}
+                icon={<StyledUser size={20} color="#a1a1aa" />}
+              />
 
-          <Input
-            label="Email"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setErrors({ ...errors, email: undefined });
-            }}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            placeholder="Enter your email"
-            error={errors.email}
-            icon={<StyledMail size={20} color="#a1a1aa" />}
-            containerClassName="mt-4"
-          />
+              <Input
+                label="Email"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  setErrors({ ...errors, email: undefined });
+                }}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                placeholder="Enter your email"
+                error={errors.email}
+                icon={<StyledMail size={20} color="#a1a1aa" />}
+                containerClassName="mt-4"
+              />
 
-          <Input
-            label="Password"
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              setErrors({ ...errors, password: undefined });
-            }}
-            secureTextEntry
-            placeholder="Create a password"
-            error={errors.password}
-            icon={<StyledLock size={20} color="#a1a1aa" />}
-            containerClassName="mt-4"
-          />
+              <Input
+                label="Password"
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  setErrors({ ...errors, password: undefined });
+                }}
+                secureTextEntry
+                placeholder="Create a password"
+                error={errors.password}
+                icon={<StyledLock size={20} color="#a1a1aa" />}
+                containerClassName="mt-4"
+              />
 
-          <Input
-            label="Confirm Password"
-            value={confirmPassword}
-            onChangeText={(text) => {
-              setConfirmPassword(text);
-              setErrors({ ...errors, confirmPassword: undefined });
-            }}
-            secureTextEntry
-            placeholder="Confirm your password"
-            error={errors.confirmPassword}
-            icon={<StyledLock size={20} color="#a1a1aa" />}
-            containerClassName="mt-4"
-          />
+              <Input
+                label="Confirm Password"
+                value={confirmPassword}
+                onChangeText={(text) => {
+                  setConfirmPassword(text);
+                  setErrors({ ...errors, confirmPassword: undefined });
+                }}
+                secureTextEntry
+                placeholder="Confirm your password"
+                error={errors.confirmPassword}
+                icon={<StyledLock size={20} color="#a1a1aa" />}
+                containerClassName="mt-4"
+              />
+            </>
+          )}
 
-          {/* Gym Information */}
-          <Text className="text-foreground font-bold text-lg mt-6 mb-4">Gym Information</Text>
-          
-          <Input
-            label="Gym Name"
-            value={gymName}
-            onChangeText={(text) => {
-              setGymName(text);
-              setErrors({ ...errors, gymName: undefined });
-            }}
-            placeholder="Enter your gym name"
-            error={errors.gymName}
-            icon={<StyledBuilding2 size={20} color="#a1a1aa" />}
-          />
-
-          <Input
-            label="Gym Address"
-            value={gymAddress}
-            onChangeText={setGymAddress}
-            placeholder="Enter your gym address"
-            containerClassName="mt-4"
-            icon={<StyledBuilding2 size={20} color="#a1a1aa" />}
-          />
-
-          {/* Gym Type Selector */}
-          <View className="mt-4">
-            <Text className="text-foreground font-medium mb-2">Gym Type</Text>
-            <View className="flex-row gap-2">
-              <TouchableOpacity
-                onPress={() => setGymType('male')}
-                className={`flex-1 py-3 px-4 rounded-lg border-2 ${
-                  gymType === 'male' ? 'border-primary bg-primary/10' : 'border-border bg-card'
-                }`}
-              >
-                <Text className={`text-center font-medium ${
-                  gymType === 'male' ? 'text-primary' : 'text-muted-foreground'
-                }`}>
-                  Male
-                </Text>
+          {step === 2 && (
+            <>
+              <TouchableOpacity onPress={() => setStep(1)} className="flex-row items-center mb-4">
+                <StyledArrowLeft size={24} color="#84cc16" />
+                <Text className="text-primary font-medium ml-2">Back to Personal Info</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setGymType('female')}
-                className={`flex-1 py-3 px-4 rounded-lg border-2 ${
-                  gymType === 'female' ? 'border-primary bg-primary/10' : 'border-border bg-card'
-                }`}
-              >
-                <Text className={`text-center font-medium ${
-                  gymType === 'female' ? 'text-primary' : 'text-muted-foreground'
-                }`}>
-                  Female
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setGymType('unisex')}
-                className={`flex-1 py-3 px-4 rounded-lg border-2 ${
-                  gymType === 'unisex' ? 'border-primary bg-primary/10' : 'border-border bg-card'
-                }`}
-              >
-                <Text className={`text-center font-medium ${
-                  gymType === 'unisex' ? 'text-primary' : 'text-muted-foreground'
-                }`}>
-                  Unisex
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
 
-          {/* Gym Logo */}
-          <View className="mt-4">
-            <Text className="text-foreground font-medium mb-2">Gym Logo (Optional)</Text>
-            <TouchableOpacity
-              onPress={pickImage}
-              className="border-2 border-dashed border-border rounded-lg p-4 items-center"
-            >
-              {gymLogo ? (
-                <Image
-                  source={{ uri: gymLogo }}
-                  className="w-24 h-24 rounded-lg mb-2"
-                  resizeMode="cover"
-                />
-              ) : (
-                <View className="w-24 h-24 bg-muted rounded-lg items-center justify-center mb-2">
-                  <StyledImageIcon size={32} color="#a1a1aa" />
+              <Text className="text-foreground font-bold text-lg mb-4">Gym Information</Text>
+              
+              <Input
+                label="Gym Name"
+                value={gymName}
+                onChangeText={(text) => {
+                  setGymName(text);
+                  setErrors({ ...errors, gymName: undefined });
+                }}
+                placeholder="Enter your gym name"
+                error={errors.gymName}
+                icon={<StyledBuilding2 size={20} color="#a1a1aa" />}
+              />
+
+              <Input
+                label="Gym Address"
+                value={gymAddress}
+                onChangeText={setGymAddress}
+                placeholder="Enter your gym address"
+                containerClassName="mt-4"
+                icon={<StyledBuilding2 size={20} color="#a1a1aa" />}
+              />
+
+              {/* Gym Type Selector */}
+              <View className="mt-4">
+                <Text className="text-foreground font-medium mb-2">Gym Type</Text>
+                <View className="flex-row gap-2">
+                  <TouchableOpacity
+                    onPress={() => setGymType('male')}
+                    className={`flex-1 py-3 px-4 rounded-lg border-2 ${
+                      gymType === 'male' ? 'border-primary bg-primary/10' : 'border-border bg-card'
+                    }`}
+                  >
+                    <Text className={`text-center font-medium ${
+                      gymType === 'male' ? 'text-primary' : 'text-muted-foreground'
+                    }`}>
+                      Male
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setGymType('female')}
+                    className={`flex-1 py-3 px-4 rounded-lg border-2 ${
+                      gymType === 'female' ? 'border-primary bg-primary/10' : 'border-border bg-card'
+                    }`}
+                  >
+                    <Text className={`text-center font-medium ${
+                      gymType === 'female' ? 'text-primary' : 'text-muted-foreground'
+                    }`}>
+                      Female
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setGymType('unisex')}
+                    className={`flex-1 py-3 px-4 rounded-lg border-2 ${
+                      gymType === 'unisex' ? 'border-primary bg-primary/10' : 'border-border bg-card'
+                    }`}
+                  >
+                    <Text className={`text-center font-medium ${
+                      gymType === 'unisex' ? 'text-primary' : 'text-muted-foreground'
+                    }`}>
+                      Unisex
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-              )}
-              <Text className="text-primary font-medium">
-                {gymLogo ? 'Change Logo' : 'Upload Logo'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+              </View>
 
-          {/* Membership Plans */}
-          <View className="mt-6">
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-foreground font-bold text-lg">Membership Plans</Text>
-              <TouchableOpacity
-                onPress={addMembershipPlan}
-                className="bg-primary/20 px-3 py-2 rounded-lg flex-row items-center"
-              >
-                <StyledPlus size={16} color="#84cc16" />
-                <Text className="text-primary font-bold ml-1">Add Plan</Text>
-              </TouchableOpacity>
-            </View>
-
-            {membershipPlans.map((plan, index) => (
-              <Card key={index} className="mb-4 p-4">
-                <View className="flex-row justify-between items-center mb-3">
-                  <Text className="text-foreground font-semibold">Plan {index + 1}</Text>
-                  {membershipPlans.length > 1 && (
-                    <TouchableOpacity
-                      onPress={() => removeMembershipPlan(index)}
-                      className="p-2"
-                    >
-                      <StyledTrash2 size={18} color="#ef4444" />
-                    </TouchableOpacity>
+              {/* Gym Logo */}
+              <View className="mt-4">
+                <Text className="text-foreground font-medium mb-2">Gym Logo (Optional)</Text>
+                <TouchableOpacity
+                  onPress={pickImage}
+                  className="border-2 border-dashed border-border rounded-lg p-4 items-center"
+                >
+                  {gymLogo ? (
+                    <Image
+                      source={{ uri: gymLogo }}
+                      className="w-24 h-24 rounded-lg mb-2"
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View className="w-24 h-24 bg-muted rounded-lg items-center justify-center mb-2">
+                      <StyledImageIcon size={32} color="#a1a1aa" />
+                    </View>
                   )}
+                  <Text className="text-primary font-medium">
+                    {gymLogo ? 'Change Logo' : 'Upload Logo'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Membership Plans */}
+              <View className="mt-6">
+                <View className="flex-row justify-between items-center mb-4">
+                  <Text className="text-foreground font-bold text-lg">Membership Plans</Text>
+                  <TouchableOpacity
+                    onPress={addMembershipPlan}
+                    className="bg-primary/20 px-3 py-2 rounded-lg flex-row items-center"
+                  >
+                    <StyledPlus size={16} color="#84cc16" />
+                    <Text className="text-primary font-bold ml-1">Add Plan</Text>
+                  </TouchableOpacity>
                 </View>
 
-                <Input
-                  label="Plan Name"
-                  value={plan.name}
-                  onChangeText={(text) => updateMembershipPlan(index, 'name', text)}
-                  placeholder="e.g., Basic Monthly"
-                  error={errors[`plan_${index}_name`]}
-                />
+                {membershipPlans.map((plan, index) => (
+                  <Card key={index} className="mb-4 p-4">
+                    <View className="flex-row justify-between items-center mb-3">
+                      <Text className="text-foreground font-semibold">Plan {index + 1}</Text>
+                      {membershipPlans.length > 1 && (
+                        <TouchableOpacity
+                          onPress={() => removeMembershipPlan(index)}
+                          className="p-2"
+                        >
+                          <StyledTrash2 size={18} color="#ef4444" />
+                        </TouchableOpacity>
+                      )}
+                    </View>
 
-                <View className="flex-row gap-3 mt-3">
-                  <View className="flex-1">
                     <Input
-                      label="Duration (months)"
-                      value={plan.duration.toString()}
-                      onChangeText={(text) => updateMembershipPlan(index, 'duration', parseInt(text) || 1)}
-                      keyboardType="numeric"
-                      placeholder="1"
-                      error={errors[`plan_${index}_duration`]}
+                      label="Plan Name"
+                      value={plan.name}
+                      onChangeText={(text) => updateMembershipPlan(index, 'name', text)}
+                      placeholder="e.g., Basic Monthly"
+                      error={errors[`plan_${index}_name`]}
                     />
-                  </View>
-                  <View className="flex-1">
-                    <Input
-                      label="Fee (₹)"
-                      value={plan.fee.toString()}
-                      onChangeText={(text) => updateMembershipPlan(index, 'fee', parseInt(text) || 0)}
-                      keyboardType="numeric"
-                      placeholder="1500"
-                      error={errors[`plan_${index}_fee`]}
-                    />
-                  </View>
-                </View>
-              </Card>
-            ))}
-          </View>
+
+                    <View className="flex-row gap-3 mt-3">
+                      <View className="flex-1">
+                        <Input
+                          label="Duration (months)"
+                          value={plan.duration.toString()}
+                          onChangeText={(text) => updateMembershipPlan(index, 'duration', parseInt(text) || 1)}
+                          keyboardType="numeric"
+                          placeholder="1"
+                          error={errors[`plan_${index}_duration`]}
+                        />
+                      </View>
+                      <View className="flex-1">
+                        <Input
+                          label="Fee (₹)"
+                          value={plan.fee.toString()}
+                          onChangeText={(text) => updateMembershipPlan(index, 'fee', parseInt(text) || 0)}
+                          keyboardType="numeric"
+                          placeholder="1500"
+                          error={errors[`plan_${index}_fee`]}
+                        />
+                      </View>
+                    </View>
+                  </Card>
+                ))}
+              </View>
+            </>
+          )}
 
           <Button
-            onPress={handleSignup}
+            onPress={step === 1 ? handleNext : handleSignup}
             loading={isSubmitting}
             className="mt-6"
           >
-            Create Account
+            {step === 1 ? 'Next' : 'Create Account'}
           </Button>
 
           <View className="flex-row justify-center mt-4 mb-8">
