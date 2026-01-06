@@ -32,8 +32,8 @@ const LoginScreen = ({ navigation }: any) => {
     
     if (!password) {
       newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
     }
     
     setErrors(newErrors);
@@ -44,7 +44,7 @@ const LoginScreen = ({ navigation }: any) => {
     if (!validate()) return;
 
     setIsSubmitting(true);
-    const result = await login(email.trim(), password);
+    const result = await login(email.trim().toLowerCase(), password);
     setIsSubmitting(false);
 
     if (result.error) {
