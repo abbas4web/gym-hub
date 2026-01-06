@@ -279,8 +279,11 @@ const AddClientScreen = ({ navigation }: any) => {
   const handleAddClient = async () => {
     if (!validate()) return;
 
+    setIsSubmitting(true);
+
     const canAdd = await canAddClient();
     if (!canAdd) {
+      setIsSubmitting(false);
       showError(
         'Client Limit Reached',
         'You have reached the maximum number of clients for your plan. Please upgrade to add more clients.'
@@ -288,7 +291,6 @@ const AddClientScreen = ({ navigation }: any) => {
       return;
     }
 
-    setIsSubmitting(true);
     try {
       await addClient({
         name: name.trim(),
@@ -453,7 +455,7 @@ const AddClientScreen = ({ navigation }: any) => {
                     setSelectedPlanIndex(index);
                     setIsCustom(false);
                   }}
-                  className={`px-4 py-3 rounded-lg border ${
+                  className={`px-4 h-12 justify-center rounded-lg border ${
                     selectedPlanIndex === index && !isCustom
                       ? 'bg-primary border-primary'
                       : 'bg-card border-border'
@@ -482,7 +484,7 @@ const AddClientScreen = ({ navigation }: any) => {
                   setIsCustom(true);
                   setSelectedPlanIndex(null);
                 }}
-                className={`px-4 py-3 rounded-lg border ${
+                className={`px-4 h-12 justify-center rounded-lg border ${
                   isCustom
                     ? 'bg-primary border-primary'
                     : 'bg-card border-border'

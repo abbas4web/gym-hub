@@ -285,7 +285,7 @@ const SignupScreen = ({ navigation }: any) => {
                 <View className="flex-row gap-2">
                   <TouchableOpacity
                     onPress={() => setGymType('male')}
-                    className={`flex-1 py-3 px-4 rounded-lg border-2 ${
+                    className={`flex-1 h-12 rounded-lg border-2 items-center justify-center ${
                       gymType === 'male' ? 'border-primary bg-primary/10' : 'border-border bg-card'
                     }`}
                   >
@@ -297,7 +297,7 @@ const SignupScreen = ({ navigation }: any) => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setGymType('female')}
-                    className={`flex-1 py-3 px-4 rounded-lg border-2 ${
+                    className={`flex-1 h-12 rounded-lg border-2 items-center justify-center ${
                       gymType === 'female' ? 'border-primary bg-primary/10' : 'border-border bg-card'
                     }`}
                   >
@@ -309,7 +309,7 @@ const SignupScreen = ({ navigation }: any) => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setGymType('unisex')}
-                    className={`flex-1 py-3 px-4 rounded-lg border-2 ${
+                    className={`flex-1 h-12 rounded-lg border-2 items-center justify-center ${
                       gymType === 'unisex' ? 'border-primary bg-primary/10' : 'border-border bg-card'
                     }`}
                   >

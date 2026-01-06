@@ -28,7 +28,7 @@ export const Input: React.FC<InputProps> = ({
     <View className={containerClassName}>
       {/* {label && <Text className="text-foreground mb-2 font-medium">{label}</Text>} */}
       <View className="relative">
-        <View className="flex-row items-center bg-secondary border border-border rounded-xl px-4 h-14">
+        <View className="flex-row items-center bg-secondary border border-border rounded-xl px-4 h-12">
           {icon && <View className="mr-3">{icon}</View>}
           <TextInput
             className="flex-1 text-foreground"
