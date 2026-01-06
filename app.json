@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "gym-hub-mobile",
-    "slug": "gym-hub-mobile",
+    "name": "GymHub",
+    "slug": "gym-hub",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
