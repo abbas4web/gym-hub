@@ -112,7 +112,7 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
         </View>
       </View>
 
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
         {/* Profile Section */}
         <View className="items-center py-6 px-4">
           {client.photo ? (

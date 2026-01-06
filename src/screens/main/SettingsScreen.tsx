@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -7,6 +7,8 @@ import { styled } from 'nativewind';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { SUBSCRIPTION_PLANS } from '@/types/models';
+import { usePopup } from '@/hooks/usePopup';
+import CustomPopup from '@/components/CustomPopup';
 
 const StyledUser = styled(User);
 const StyledLogOut = styled(LogOut);
@@ -17,15 +19,15 @@ const StyledCreditCard = styled(CreditCard);
 const SettingsScreen = ({ navigation }: any) => {
   const { user, logout } = useAuth();
   const { subscription } = useSubscription();
+  const { popupState, showConfirm, hidePopup } = usePopup();
 
   const handleLogout = () => {
-    Alert.alert(
+    showConfirm(
       'Logout',
       'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', style: 'destructive', onPress: async () => await logout() },
-      ]
+      async () => {
+        await logout();
+      }
     );
   };
 
@@ -42,7 +44,8 @@ const SettingsScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <ScrollView className="flex-1 px-6 pt-6" contentContainerStyle={{ paddingBottom: 100 }}>
+      <CustomPopup {...popupState} onClose={hidePopup} />
+      <ScrollView className="flex-1 px-6 pt-6" contentContainerStyle={{ paddingBottom: 24 }}>
         <Text className="text-2xl font-bold text-foreground mb-6">Settings</Text>
 
         {/* User Profile */}
