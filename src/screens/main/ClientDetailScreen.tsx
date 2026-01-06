@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Linking, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Linking, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Phone, Mail, Calendar, CreditCard, Trash2, Edit } from 'lucide-react-native';
 import { styled } from 'nativewind';
@@ -23,8 +23,18 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
   const { clientId } = route.params;
   const { clients, deleteClient } = useClients();
   const { popupState, showError, showSuccess, showConfirm, hidePopup } = usePopup();
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const client = clients.find(c => c.id === clientId);
+
+  if (isDeleting) {
+    return (
+      <SafeAreaView className="flex-1 bg-background items-center justify-center">
+        <ActivityIndicator size="large" color="#84cc16" />
+        <Text className="text-muted-foreground mt-4">Removing client...</Text>
+      </SafeAreaView>
+    );
+  }
 
   if (!client) {
     return (
@@ -59,12 +69,14 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
       `Are you sure you want to delete ${client.name}? This will also delete all associated receipts. This action cannot be undone.`,
       async () => {
         try {
+          setIsDeleting(true);
           await deleteClient(client.id);
           showSuccess('Success', 'Client deleted successfully');
           setTimeout(() => {
             navigation.navigate('Clients');
           }, 1500);
         } catch (error: any) {
+          setIsDeleting(false);
           showError('Error', error.message || 'Failed to delete client');
         }
       }
