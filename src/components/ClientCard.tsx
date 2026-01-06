@@ -1,63 +1,89 @@
-import { Client } from '@/types/client';
-import { Phone, Calendar, ChevronRight } from 'lucide-react';
-import { format } from 'date-fns';
+import React from 'react';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { Client } from '@/types/models';
+import { Badge } from './ui/Badge';
+import { formatDate, getDaysUntilExpiry, getMembershipTypeName } from '@/utils/membership.utils';
 
 interface ClientCardProps {
   client: Client;
-  onClick: () => void;
-  delay?: number;
+  onPress: () => void;
 }
 
-const ClientCard = ({ client, onClick, delay = 0 }: ClientCardProps) => {
-  const isExpired = new Date(client.endDate) < new Date();
+export const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
+  const daysUntilExpiry = getDaysUntilExpiry(client.endDate);
   
-  return (
-    <div 
-      className="glass-card p-4 flex items-center gap-4 cursor-pointer hover:border-primary/50 transition-all duration-200 animate-slide-up group"
-      style={{ animationDelay: `${delay}ms` }}
-      onClick={onClick}
-    >
-      <div className="relative">
-        {client.photo ? (
-          <img 
-            src={client.photo} 
-            alt={client.name}
-            className="w-14 h-14 rounded-xl object-cover"
-          />
-        ) : (
-          <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center">
-            <span className="text-xl font-bold font-heading text-primary">
-              {client.name.charAt(0).toUpperCase()}
-            </span>
-          </div>
-        )}
-        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-card ${isExpired ? 'bg-destructive' : 'bg-primary'}`} />
-      </div>
-      
-      <div className="flex-1 min-w-0">
-        <h3 className="font-semibold font-heading text-foreground truncate">{client.name}</h3>
-        <div className="flex items-center gap-3 mt-1">
-          <div className="flex items-center gap-1 text-muted-foreground text-sm">
-            <Phone className="h-3 w-3" />
-            <span>{client.phone}</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-1 text-muted-foreground text-xs mt-1">
-          <Calendar className="h-3 w-3" />
-          <span>Expires: {format(new Date(client.endDate), 'dd MMM yyyy')}</span>
-        </div>
-      </div>
+  const getBadgeVariant = () => {
+    if (!client.isActive) return 'active';
+    if (daysUntilExpiry <= 7) return 'expiring';
+    return 'active';
+  };
 
-      <div className="flex flex-col items-end gap-1">
-        <span className={`text-xs px-2 py-1 rounded-full font-medium capitalize ${
-          isExpired ? 'bg-destructive/20 text-destructive' : 'bg-primary/20 text-primary'
-        }`}>
-          {isExpired ? 'Expired' : client.membershipType}
-        </span>
-        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-      </div>
-    </div>
+  const getStatusText = () => {
+    if (!client.isActive) return 'Expired';
+    if (daysUntilExpiry <= 7) return `${daysUntilExpiry}d left`;
+    return 'Active';
+  };
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      className="bg-card p-4 mb-3 rounded-xl border border-border"
+    >
+      <View className="flex-row justify-between items-start">
+        <View className="flex-row items-center flex-1">
+          {client.photo ? (
+            <Image
+              source={{ uri: client.photo }}
+              className="w-12 h-12 rounded-full mr-3"
+            />
+          ) : (
+            <View className="w-12 h-12 bg-secondary rounded-full items-center justify-center mr-3">
+              <Text className="text-primary font-bold text-lg">
+                {client.name.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+          )}
+          <View className="flex-1">
+            <Text className="text-foreground font-bold text-lg">
+              {client.name}
+            </Text>
+            <Text className="text-muted-foreground text-sm">
+              {client.phone}
+            </Text>
+          </View>
+        </View>
+        {/* Show Pending if no Aadhar, otherwise show membership status */}
+        {!client.adharPhoto ? (
+          <Badge variant="warning">
+            Pending
+          </Badge>
+        ) : (
+          <Badge variant={getBadgeVariant()}>
+            {getStatusText()}
+          </Badge>
+        )}
+      </View>
+
+      <View className="flex-row mt-4 pt-4 border-t border-border justify-between">
+        <View>
+          <Text className="text-muted-foreground text-xs">Membership</Text>
+          <Text className="text-foreground font-medium">
+            {getMembershipTypeName(client.membershipType)}
+          </Text>
+        </View>
+        <View>
+          <Text className="text-muted-foreground text-xs">Expires</Text>
+          <Text className="text-foreground font-medium">
+            {formatDate(client.endDate)}
+          </Text>
+        </View>
+        <View>
+          <Text className="text-muted-foreground text-xs">Fee</Text>
+          <Text className="text-foreground font-medium">
+            ₹{client.fee}
+          </Text>
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 };
-
-export default ClientCard;
