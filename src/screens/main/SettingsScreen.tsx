@@ -3,16 +3,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { User, LogOut, Moon, Sun, CreditCard } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { SUBSCRIPTION_PLANS } from '@/types/models';
 
-cssInterop(User, { className: { target: "style" } });
-cssInterop(LogOut, { className: { target: "style" } });
-cssInterop(Moon, { className: { target: "style" } });
-cssInterop(Sun, { className: { target: "style" } });
-cssInterop(CreditCard, { className: { target: "style" } });
+const StyledUser = styled(User);
+const StyledLogOut = styled(LogOut);
+const StyledMoon = styled(Moon);
+const StyledSun = styled(Sun);
+const StyledCreditCard = styled(CreditCard);
 
 const SettingsScreen = ({ navigation }: any) => {
   const { user, logout } = useAuth();
@@ -127,7 +127,7 @@ const SettingsScreen = ({ navigation }: any) => {
         <Card className="mb-6">
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center">
-              <CreditCard size={20} color="#84cc16" />
+              <StyledCreditCard size={20} color="#84cc16" />
               <Text className="text-foreground font-bold ml-2">Subscription</Text>
             </View>
             <View className="bg-primary/20 px-3 py-1 rounded-full">
@@ -152,7 +152,7 @@ const SettingsScreen = ({ navigation }: any) => {
         <Card className="mb-6">
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center">
-              <Moon size={20} color="#84cc16" />
+              <StyledMoon size={20} color="#84cc16" />
               <Text className="text-foreground font-medium ml-2">Dark Mode</Text>
             </View>
             <Text className="text-muted-foreground text-sm">Always On</Text>
@@ -166,7 +166,7 @@ const SettingsScreen = ({ navigation }: any) => {
           className="mt-4"
         >
           <View className="flex-row items-center">
-            <LogOut size={20} color="#ffffff" />
+            <StyledLogOut size={20} color="#ffffff" />
             <Text className="text-white font-bold ml-2">Logout</Text>
           </View>
         </Button>

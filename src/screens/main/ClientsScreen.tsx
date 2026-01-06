@@ -3,12 +3,12 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, ScrollView, 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useClients } from '@/contexts/ClientContext';
 import { Search, Plus } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { ClientCard } from '@/components/ClientCard';
 
-cssInterop(Search, { className: { target: "style" } });
-cssInterop(Plus, { className: { target: "style" } });
+const StyledSearch = styled(Search);
+const StyledPlus = styled(Plus);
 
 const ClientsScreen = ({ navigation }: any) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,7 +62,7 @@ const ClientsScreen = ({ navigation }: any) => {
             className="w-10 h-10 bg-primary items-center justify-center rounded-xl"
             onPress={() => navigation.navigate('AddClient')}
           >
-            <Plus size={24} color="#0d0f14" />
+            <StyledPlus size={24} color="#0d0f14" />
           </TouchableOpacity>
         </View>
 
@@ -70,7 +70,7 @@ const ClientsScreen = ({ navigation }: any) => {
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholder="Search clients..."
-          icon={<Search size={20} color="#a1a1aa" />}
+          icon={<StyledSearch size={20} color="#a1a1aa" />}
           containerClassName="mb-4"
         />
 

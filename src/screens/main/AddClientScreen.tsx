@@ -6,7 +6,7 @@ import { useClients } from '@/contexts/ClientContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, Mail, Phone, Calendar, Camera, ArrowLeft } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -15,12 +15,12 @@ import { getMembershipFee, calculateEndDate, formatDate, formatCurrency } from '
 import { usePopup } from '@/hooks/usePopup';
 import CustomPopup from '@/components/CustomPopup';
 
-cssInterop(User, { className: { target: "style" } });
-cssInterop(Mail, { className: { target: "style" } });
-cssInterop(Phone, { className: { target: "style" } });
-cssInterop(Calendar, { className: { target: "style" } });
-cssInterop(Camera, { className: { target: "style" } });
-cssInterop(ArrowLeft, { className: { target: "style" } });
+const StyledUser = styled(User);
+const StyledMail = styled(Mail);
+const StyledPhone = styled(Phone);
+const StyledCalendar = styled(Calendar);
+const StyledCamera = styled(Camera);
+const StyledArrowLeft = styled(ArrowLeft);
 
 const AddClientScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
@@ -331,7 +331,7 @@ const AddClientScreen = ({ navigation }: any) => {
           <View className="flex-row justify-between items-center mb-3">
             {currentStep === 2 ? (
               <TouchableOpacity onPress={handleBack} className="flex-row items-center">
-                <ArrowLeft size={24} color="#84cc16" />
+                <StyledArrowLeft size={24} color="#84cc16" />
                 <Text className="text-primary font-medium ml-2">Back</Text>
               </TouchableOpacity>
             ) : (
@@ -376,7 +376,7 @@ const AddClientScreen = ({ navigation }: any) => {
                 <Image source={{ uri: photo }} className="w-full h-full" />
               ) : (
                 <View className="items-center">
-                  <Camera size={40} color="#a1a1aa" />
+                  <StyledCamera size={40} color="#a1a1aa" />
                   <Text className="text-muted-foreground text-xs mt-2">Add Photo</Text>
                 </View>
               )}
@@ -402,7 +402,7 @@ const AddClientScreen = ({ navigation }: any) => {
             }}
             placeholder="Client name"
             error={errors.name}
-            icon={<User size={20} color="#a1a1aa" />}
+            icon={<StyledUser size={20} color="#a1a1aa" />}
             containerClassName="mb-4"
           />
 
@@ -419,7 +419,7 @@ const AddClientScreen = ({ navigation }: any) => {
             keyboardType="phone-pad"
             maxLength={10}
             error={errors.phone}
-            icon={<Phone size={20} color="#a1a1aa" />}
+            icon={<StyledPhone size={20} color="#a1a1aa" />}
             containerClassName="mb-4"
           />
 
@@ -434,7 +434,7 @@ const AddClientScreen = ({ navigation }: any) => {
             keyboardType="email-address"
             autoCapitalize="none"
             error={errors.email}
-            icon={<Mail size={20} color="#a1a1aa" />}
+            icon={<StyledMail size={20} color="#a1a1aa" />}
             containerClassName="mb-6"
           />
 
@@ -538,7 +538,7 @@ const AddClientScreen = ({ navigation }: any) => {
                     />
                   ) : (
                     <View className="items-center py-8">
-                      <Camera size={48} color="#a1a1aa" />
+                      <StyledCamera size={48} color="#a1a1aa" />
                       <Text className="text-muted-foreground mt-3">Tap to upload Aadhar card</Text>
                       <Text className="text-muted-foreground text-xs mt-1">(Optional - can be added later)</Text>
                     </View>

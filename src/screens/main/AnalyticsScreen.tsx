@@ -2,11 +2,11 @@ import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LineChart, BarChart } from 'react-native-chart-kit';
 import { TrendingUp, Users, DollarSign } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 
-cssInterop(TrendingUp, { className: { target: "style" } });
-cssInterop(Users, { className: { target: "style" } });
-cssInterop(DollarSign, { className: { target: "style" } });
+const StyledTrendingUp = styled(TrendingUp);
+const StyledUsers = styled(Users);
+const StyledDollarSign = styled(DollarSign);
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -50,7 +50,7 @@ const AnalyticsScreen = () => {
 
           <View className="mb-8">
             <View className="flex-row items-center mb-4">
-              <DollarSign size={20} color="#84cc16" />
+              <StyledDollarSign size={20} color="#84cc16" />
               <Text className="text-lg font-bold text-foreground ml-2">Revenue Overview</Text>
             </View>
             <LineChart
@@ -68,7 +68,7 @@ const AnalyticsScreen = () => {
 
           <View className="mb-8">
             <View className="flex-row items-center mb-4">
-              <Users size={20} color="#84cc16" />
+              <StyledUsers size={20} color="#84cc16" />
               <Text className="text-lg font-bold text-foreground ml-2">Weekly Attendance</Text>
             </View>
             <BarChart
@@ -89,14 +89,14 @@ const AnalyticsScreen = () => {
             <View className="w-[48%] bg-card p-4 rounded-xl border border-border mb-4">
               <Text className="text-muted-foreground text-sm mb-1">Growth Rate</Text>
               <View className="flex-row items-center">
-                <TrendingUp size={20} color="#84cc16" />
+                <StyledTrendingUp size={20} color="#84cc16" />
                 <Text className="text-2xl font-bold text-foreground ml-2">+12%</Text>
               </View>
             </View>
             <View className="w-[48%] bg-card p-4 rounded-xl border border-border mb-4">
               <Text className="text-muted-foreground text-sm mb-1">Retention</Text>
               <View className="flex-row items-center">
-                <Users size={20} color="#84cc16" />
+                <StyledUsers size={20} color="#84cc16" />
                 <Text className="text-2xl font-bold text-foreground ml-2">94%</Text>
               </View>
             </View>

@@ -3,12 +3,12 @@ import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useClients } from '@/contexts/ClientContext';
 import { Search, Receipt as ReceiptIcon } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { ReceiptCard } from '@/components/ReceiptCard';
 
-cssInterop(Search, { className: { target: "style" } });
-cssInterop(ReceiptIcon, { className: { target: "style" } });
+const StyledSearch = styled(Search);
+const StyledReceiptIcon = styled(ReceiptIcon);
 
 const ReceiptsScreen = ({ navigation }: any) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,7 +36,7 @@ const ReceiptsScreen = ({ navigation }: any) => {
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholder="Search receipts..."
-          icon={<Search size={20} color="#a1a1aa" />}
+          icon={<StyledSearch size={20} color="#a1a1aa" />}
           containerClassName="mb-6"
         />
 
@@ -53,7 +53,7 @@ const ReceiptsScreen = ({ navigation }: any) => {
           contentContainerStyle={{ paddingBottom: 100 }}
           ListEmptyComponent={
             <View className="items-center justify-center py-20">
-              <ReceiptIcon size={48} color="#a1a1aa" />
+              <StyledReceiptIcon size={48} color="#a1a1aa" />
               <Text className="text-muted-foreground mt-4">
                 {searchQuery ? 'No receipts found' : 'No receipts yet'}
               </Text>

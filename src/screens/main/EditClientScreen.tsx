@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useClients } from '@/contexts/ClientContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, Mail, Phone, Calendar, Camera, ArrowLeft } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -14,12 +14,12 @@ import { getMembershipFee, getMembershipDuration, calculateEndDate, formatDate, 
 import { usePopup } from '@/hooks/usePopup';
 import CustomPopup from '@/components/CustomPopup';
 
-cssInterop(User, { className: { target: "style" } });
-cssInterop(Mail, { className: { target: "style" } });
-cssInterop(Phone, { className: { target: "style" } });
-cssInterop(Calendar, { className: { target: "style" } });
-cssInterop(Camera, { className: { target: "style" } });
-cssInterop(ArrowLeft, { className: { target: "style" } });
+const StyledUser = styled(User);
+const StyledMail = styled(Mail);
+const StyledPhone = styled(Phone);
+const StyledCalendar = styled(Calendar);
+const StyledCamera = styled(Camera);
+const StyledArrowLeft = styled(ArrowLeft);
 
 const EditClientScreen = ({ route, navigation }: any) => {
   const { clientId } = route.params;
@@ -208,7 +208,7 @@ const EditClientScreen = ({ route, navigation }: any) => {
         {/* Header */}
         <View className="flex-row items-center px-6 py-4 border-b border-border">
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <ArrowLeft size={24} color="#84cc16" />
+            <StyledArrowLeft size={24} color="#84cc16" />
           </TouchableOpacity>
           <Text className="text-2xl font-bold text-foreground ml-4">Edit Client</Text>
         </View>
@@ -224,7 +224,7 @@ const EditClientScreen = ({ route, navigation }: any) => {
                 />
               ) : (
                 <View className="w-24 h-24 bg-primary/20 rounded-full items-center justify-center mb-2">
-                  <Camera size={32} color="#84cc16" />
+                  <StyledCamera size={32} color="#84cc16" />
                 </View>
               )}
               <Text className="text-primary text-sm">Change Photo</Text>
@@ -244,7 +244,7 @@ const EditClientScreen = ({ route, navigation }: any) => {
               }}
               placeholder="Enter client name"
               error={errors.name}
-              icon={<User size={20} color="#a1a1aa" />}
+              icon={<StyledUser size={20} color="#a1a1aa" />}
             />
 
             <Input
@@ -260,7 +260,7 @@ const EditClientScreen = ({ route, navigation }: any) => {
               keyboardType="phone-pad"
               maxLength={10}
               error={errors.phone}
-              icon={<Phone size={20} color="#a1a1aa" />}
+              icon={<StyledPhone size={20} color="#a1a1aa" />}
               containerClassName="mt-4"
             />
 
@@ -275,7 +275,7 @@ const EditClientScreen = ({ route, navigation }: any) => {
               keyboardType="email-address"
               autoCapitalize="none"
               error={errors.email}
-              icon={<Mail size={20} color="#a1a1aa" />}
+              icon={<StyledMail size={20} color="#a1a1aa" />}
               containerClassName="mt-4"
             />
           </Card>
@@ -295,7 +295,7 @@ const EditClientScreen = ({ route, navigation }: any) => {
                 />
               ) : (
                 <View className="w-full h-40 bg-muted rounded-lg items-center justify-center mb-2">
-                  <Camera size={32} color="#a1a1aa" />
+                  <StyledCamera size={32} color="#a1a1aa" />
                 </View>
               )}
               <Text className="text-primary font-medium">

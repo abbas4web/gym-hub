@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Share2 } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useClients } from '@/contexts/ClientContext';
@@ -13,8 +13,8 @@ import { generateReceiptHTML } from '@/utils/receipt.utils';
 import { usePopup } from '@/hooks/usePopup';
 import CustomPopup from '@/components/CustomPopup';
 
-cssInterop(ArrowLeft, { className: { target: "style" } });
-cssInterop(Share2, { className: { target: "style" } });
+const StyledArrowLeft = styled(ArrowLeft);
+const StyledShare2 = styled(Share2);
 
 const ReceiptDetailScreen = ({ route, navigation }: any) => {
   const { receiptId } = route.params;
@@ -75,14 +75,14 @@ const ReceiptDetailScreen = ({ route, navigation }: any) => {
       {/* Header */}
       <View className="px-6 py-4 border-b border-border flex-row justify-between items-center">
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft size={24} color="#fff" />
+          <StyledArrowLeft size={24} color="#fff" />
         </TouchableOpacity>
         <Text className="text-xl font-bold text-foreground">Receipt Details</Text>
         <TouchableOpacity onPress={handleSharePDF} disabled={isGenerating}>
           {isGenerating ? (
             <ActivityIndicator size="small" color="#84cc16" />
           ) : (
-            <Share2 size={24} color="#84cc16" />
+            <StyledShare2 size={24} color="#84cc16" />
           )}
         </TouchableOpacity>
       </View>
@@ -173,7 +173,7 @@ const ReceiptDetailScreen = ({ route, navigation }: any) => {
             </>
           ) : (
             <>
-              <Share2 size={20} color="#0d0f14" />
+              <StyledShare2 size={20} color="#0d0f14" />
               <Text className="text-primary-foreground font-bold text-lg ml-2">Share Receipt PDF</Text>
             </>
           )}

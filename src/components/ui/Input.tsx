@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TextInputProps, TouchableOpacity } from 'react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 
-cssInterop(Eye, { className: { target: "style" } });
-cssInterop(EyeOff, { className: { target: "style" } });
+const StyledEye = styled(Eye);
+const StyledEyeOff = styled(EyeOff);
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -42,9 +42,9 @@ export const Input: React.FC<InputProps> = ({
               className="ml-2"
             >
               {isPasswordVisible ? (
-                <EyeOff size={20} color="#71717a" />
+                <StyledEyeOff size={20} color="#71717a" />
               ) : (
-                <Eye size={20} color="#71717a" />
+                <StyledEye size={20} color="#71717a" />
               )}
             </TouchableOpacity>
           )}

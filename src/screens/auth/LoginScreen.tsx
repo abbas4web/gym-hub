@@ -3,15 +3,15 @@ import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollVie
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dumbbell, Mail, Lock } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { usePopup } from '@/hooks/usePopup';
 import CustomPopup from '@/components/CustomPopup';
 
-cssInterop(Dumbbell, { className: { target: "style" } });
-cssInterop(Mail, { className: { target: "style" } });
-cssInterop(Lock, { className: { target: "style" } });
+const StyledDumbbell = styled(Dumbbell);
+const StyledMail = styled(Mail);
+const StyledLock = styled(Lock);
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
@@ -84,7 +84,7 @@ const LoginScreen = ({ navigation }: any) => {
               autoCapitalize="none"
               keyboardType="email-address"
               error={errors.email}
-              icon={<Mail size={20} color="#a1a1aa" />}
+              icon={<StyledMail size={20} color="#a1a1aa" />}
               placeholder="Enter your email"
             />
 

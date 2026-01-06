@@ -5,10 +5,10 @@ import { ArrowLeft, BellOff } from 'lucide-react-native';
 import { useClients } from '@/contexts/ClientContext';
 import { ClientCard } from '@/components/ClientCard';
 import { getExpiringClients, getExpiredClients } from '@/utils/membership.utils';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 
-cssInterop(ArrowLeft, { className: { target: "style" } });
-cssInterop(BellOff, { className: { target: "style" } });
+const StyledArrowLeft = styled(ArrowLeft);
+const StyledBellOff = styled(BellOff);
 
 const NotificationCenterScreen = ({ navigation }: any) => {
   const { clients } = useClients();
@@ -28,7 +28,7 @@ const NotificationCenterScreen = ({ navigation }: any) => {
           onPress={() => navigation.goBack()}
           className="mr-4"
         >
-          <ArrowLeft size={24} color="#84cc16" />
+          <StyledArrowLeft size={24} color="#84cc16" />
         </TouchableOpacity>
         <Text className="text-xl font-bold text-foreground">Notifications</Text>
       </View>
@@ -48,7 +48,7 @@ const NotificationCenterScreen = ({ navigation }: any) => {
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center py-20 px-8">
             <View className="w-16 h-16 bg-secondary rounded-full items-center justify-center mb-4">
-              <BellOff size={32} color="#a1a1aa" />
+              <StyledBellOff size={32} color="#a1a1aa" />
             </View>
             <Text className="text-foreground font-bold text-lg mb-2">All caught up!</Text>
             <Text className="text-muted-foreground text-center">

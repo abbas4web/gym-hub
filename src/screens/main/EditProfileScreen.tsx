@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Camera, User as UserIcon } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/contexts/AuthContext';
 import { authAPI } from '@/services/api.service';
@@ -10,9 +10,9 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
-cssInterop(ArrowLeft, { className: { target: "style" } });
-cssInterop(Camera, { className: { target: "style" } });
-cssInterop(UserIcon, { className: { target: "style" } });
+const StyledArrowLeft = styled(ArrowLeft);
+const StyledCamera = styled(Camera);
+const StyledUserIcon = styled(UserIcon);
 
 const EditProfileScreen = ({ navigation }: any) => {
   const { user, updateUser } = useAuth();
@@ -165,9 +165,9 @@ const EditProfileScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView className="flex-1 bg-background">
       {/* Header */}
-      <View className="px-6 py-4 border-b border-border flex-row items-center">
+        <View className="px-6 py-4 border-b border-border flex-row items-center">
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft size={24} color="#fff" />
+          <StyledArrowLeft size={24} color="#fff" />
         </TouchableOpacity>
         <Text className="text-xl font-bold text-foreground ml-4">Edit Profile</Text>
       </View>
@@ -194,7 +194,7 @@ const EditProfileScreen = ({ navigation }: any) => {
             
             {/* Camera Icon Overlay */}
             <View className="absolute bottom-0 right-0 bg-primary rounded-full p-3">
-              <Camera size={20} color="#0d0f14" />
+              <StyledCamera size={20} color="#0d0f14" />
             </View>
           </TouchableOpacity>
           

@@ -4,20 +4,20 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useClients } from '@/contexts/ClientContext';
 import { useState } from 'react';
 import { Users, UserCheck, UserX, IndianRupee, Plus, Bell, Eye, EyeOff, Clock } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { getExpiringClients, getExpiredClients, formatCurrency } from '@/utils/membership.utils';
 
-cssInterop(Users, { className: { target: "style" } });
-cssInterop(UserCheck, { className: { target: "style" } });
-cssInterop(UserX, { className: { target: "style" } });
-cssInterop(IndianRupee, { className: { target: "style" } });
-cssInterop(Plus, { className: { target: "style" } });
-cssInterop(Bell, { className: { target: "style" } });
-cssInterop(Eye, { className: { target: "style" } });
-cssInterop(EyeOff, { className: { target: "style" } });
-cssInterop(Clock, { className: { target: "style" } });
+const StyledUsers = styled(Users);
+const StyledUserCheck = styled(UserCheck);
+const StyledUserX = styled(UserX);
+const StyledIndianRupee = styled(IndianRupee);
+const StyledPlus = styled(Plus);
+const StyledBell = styled(Bell);
+const StyledEye = styled(Eye);
+const StyledEyeOff = styled(EyeOff);
+const StyledClock = styled(Clock);
 
 const StatCard = ({ title, value, icon: Icon, color = "#84cc16" }: any) => (
   <Card className="flex-1 mr-2 mb-2 min-w-[150px]">
@@ -64,7 +64,7 @@ const DashboardScreen = ({ navigation }: any) => {
               className="w-10 h-10 items-center justify-center rounded-xl mr-4 bg-primary/20"
               onPress={() => navigation.navigate('NotificationCenter')}
             >
-              <Bell size={20} color="#84cc16" />
+              <StyledBell size={20} color="#84cc16" />
                 <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full items-center justify-center bg-primary">
                   <Text className="text-white text-xs font-bold">{notificationCount}</Text>
                 </View>
@@ -95,23 +95,23 @@ const DashboardScreen = ({ navigation }: any) => {
 
         {/* Stats Cards */}
         <View className="flex-row flex-wrap justify-between mb-6">
-          <StatCard title="Total" value={clients.length} icon={Users} />
-          <StatCard title="Active" value={activeClients.length} icon={UserCheck} />
-          <StatCard title="Pending" value={pendingClients.length} icon={Clock} color="#f59e0b" />
-          <StatCard title="Expired" value={expiredClients.length} icon={UserX} color="#ef4444" />
+          <StatCard title="Total" value={clients.length} icon={StyledUsers} />
+          <StatCard title="Active" value={activeClients.length} icon={StyledUserCheck} />
+          <StatCard title="Pending" value={pendingClients.length} icon={StyledClock} color="#f59e0b" />
+          <StatCard title="Expired" value={expiredClients.length} icon={StyledUserX} color="#ef4444" />
           
           {/* Revenue Card with Hide/Show Toggle */}
           <Card className="flex-1 mr-2 mb-2 min-w-[150px]">
             <View className="flex-row justify-between items-start mb-2">
               <View className="flex-row items-center gap-2">
-                <IndianRupee size={20} color="#84cc16" />
+                <StyledIndianRupee size={20} color="#84cc16" />
                 <Text className="text-xs text-muted-foreground">Revenue</Text>
               </View>
               <TouchableOpacity onPress={() => setShowRevenue(!showRevenue)}>
                 {showRevenue ? (
-                  <Eye size={16} color="#A1A1AA" />
+                  <StyledEye size={16} color="#A1A1AA" />
                 ) : (
-                  <EyeOff size={16} color="#A1A1AA" />
+                  <StyledEyeOff size={16} color="#A1A1AA" />
                 )}
               </TouchableOpacity>
             </View>
@@ -128,7 +128,7 @@ const DashboardScreen = ({ navigation }: any) => {
           activeOpacity={0.8}
         >
           <View className="w-16 h-16 bg-primary-foreground/10 rounded-full items-center justify-center mb-3">
-            <Plus size={32} color="#0d0f14" />
+            <StyledPlus size={32} color="#0d0f14" />
           </View>
           <Text className="text-primary-foreground font-bold text-lg">Add New Client</Text>
           <Text className="text-primary-foreground/70 text-sm mt-1">Tap to register a new member</Text>

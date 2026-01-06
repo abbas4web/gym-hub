@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Linking, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Phone, Mail, Calendar, CreditCard, Trash2, Edit } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import { useClients } from '@/contexts/ClientContext';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -11,13 +11,13 @@ import { formatDate, formatCurrency, getMembershipTypeName } from '@/utils/membe
 import { usePopup } from '@/hooks/usePopup';
 import CustomPopup from '@/components/CustomPopup';
 
-cssInterop(ArrowLeft, { className: { target: "style" } });
-cssInterop(Phone, { className: { target: "style" } });
-cssInterop(Mail, { className: { target: "style" } });
-cssInterop(Calendar, { className: { target: "style" } });
-cssInterop(CreditCard, { className: { target: "style" } });
-cssInterop(Trash2, { className: { target: "style" } });
-cssInterop(Edit, { className: { target: "style" } });
+const StyledArrowLeft = styled(ArrowLeft);
+const StyledPhone = styled(Phone);
+const StyledMail = styled(Mail);
+const StyledCalendar = styled(Calendar);
+const StyledCreditCard = styled(CreditCard);
+const StyledTrash2 = styled(Trash2);
+const StyledEdit = styled(Edit);
 
 const ClientDetailScreen = ({ route, navigation }: any) => {
   const { clientId } = route.params;
@@ -78,7 +78,7 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-4 border-b border-border">
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft size={24} color="#84cc16" />
+          <StyledArrowLeft size={24} color="#84cc16" />
         </TouchableOpacity>
         <View className="flex-row items-center gap-3">
           {/* Show Pending if no Aadhar, otherwise show membership status */}
@@ -92,10 +92,10 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
             </Badge>
           )}
           <TouchableOpacity onPress={() => navigation.navigate('EditClient', { clientId: client.id })}>
-            <Edit size={24} color="#84cc16" />
+            <StyledEdit size={24} color="#84cc16" />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleDelete}>
-            <Trash2 size={24} color="#ef4444" />
+            <StyledTrash2 size={24} color="#ef4444" />
           </TouchableOpacity>
         </View>
       </View>
@@ -127,7 +127,7 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
             onPress={handleCall}
             className="flex-row items-center py-3 border-b border-border"
           >
-            <Phone size={20} color="#84cc16" />
+            <StyledPhone size={20} color="#84cc16" />
             <View className="ml-3 flex-1">
               <Text className="text-muted-foreground text-xs">Phone</Text>
               <Text className="text-foreground">{client.phone}</Text>
@@ -139,7 +139,7 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
               onPress={handleEmail}
               className="flex-row items-center py-3"
             >
-              <Mail size={20} color="#84cc16" />
+              <StyledMail size={20} color="#84cc16" />
               <View className="ml-3 flex-1">
                 <Text className="text-muted-foreground text-xs">Email</Text>
                 <Text className="text-foreground">{client.email}</Text>
@@ -153,7 +153,7 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
           <Text className="text-foreground font-bold text-lg mb-4">Membership Details</Text>
           
           <View className="flex-row items-center py-3 border-b border-border">
-            <CreditCard size={20} color="#84cc16" />
+            <StyledCreditCard size={20} color="#84cc16" />
             <View className="ml-3 flex-1">
               <Text className="text-muted-foreground text-xs">Membership Type</Text>
               <Text className="text-foreground">{getMembershipTypeName(client.membershipType)}</Text>
@@ -161,7 +161,7 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
           </View>
 
           <View className="flex-row items-center py-3 border-b border-border">
-            <Calendar size={20} color="#84cc16" />
+            <StyledCalendar size={20} color="#84cc16" />
             <View className="ml-3 flex-1">
               <Text className="text-muted-foreground text-xs">Start Date</Text>
               <Text className="text-foreground">{formatDate(client.startDate)}</Text>
@@ -169,7 +169,7 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
           </View>
 
           <View className="flex-row items-center py-3 border-b border-border">
-            <Calendar size={20} color="#84cc16" />
+            <StyledCalendar size={20} color="#84cc16" />
             <View className="ml-3 flex-1">
               <Text className="text-muted-foreground text-xs">End Date</Text>
               <Text className="text-foreground">{formatDate(client.endDate)}</Text>
@@ -177,7 +177,7 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
           </View>
 
           <View className="flex-row items-center py-3">
-            <CreditCard size={20} color="#84cc16" />
+            <StyledCreditCard size={20} color="#84cc16" />
             <View className="ml-3 flex-1">
               <Text className="text-muted-foreground text-xs">Membership Fee</Text>
               <Text className="text-foreground font-bold">{formatCurrency(client.fee)}</Text>

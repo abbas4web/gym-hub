@@ -4,21 +4,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dumbbell, User, Mail, Lock, Building2, ImageIcon, Plus, Trash2 } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { usePopup } from '@/hooks/usePopup';
 import CustomPopup from '@/components/CustomPopup';
 
-cssInterop(Dumbbell, { className: { target: "style" } });
-cssInterop(User, { className: { target: "style" } });
-cssInterop(Mail, { className: { target: "style" } });
-cssInterop(Lock, { className: { target: "style" } });
-cssInterop(Building2, { className: { target: "style" } });
-cssInterop(ImageIcon, { className: { target: "style" } });
-cssInterop(Plus, { className: { target: "style" } });
-cssInterop(Trash2, { className: { target: "style" } });
+const StyledDumbbell = styled(Dumbbell);
+const StyledUser = styled(User);
+const StyledMail = styled(Mail);
+const StyledLock = styled(Lock);
+const StyledBuilding2 = styled(Building2);
+const StyledImageIcon = styled(ImageIcon);
+const StyledPlus = styled(Plus);
+const StyledTrash2 = styled(Trash2);
 
 interface MembershipPlan {
   name: string;
@@ -182,7 +182,7 @@ const SignupScreen = ({ navigation }: any) => {
             }}
             placeholder="Enter your name"
             error={errors.name}
-            icon={<User size={20} color="#a1a1aa" />}
+            icon={<StyledUser size={20} color="#a1a1aa" />}
           />
 
           <Input
@@ -196,7 +196,7 @@ const SignupScreen = ({ navigation }: any) => {
             keyboardType="email-address"
             placeholder="Enter your email"
             error={errors.email}
-            icon={<Mail size={20} color="#a1a1aa" />}
+            icon={<StyledMail size={20} color="#a1a1aa" />}
             containerClassName="mt-4"
           />
 
@@ -210,7 +210,7 @@ const SignupScreen = ({ navigation }: any) => {
             secureTextEntry
             placeholder="Create a password"
             error={errors.password}
-            icon={<Lock size={20} color="#a1a1aa" />}
+            icon={<StyledLock size={20} color="#a1a1aa" />}
             containerClassName="mt-4"
           />
 
@@ -224,7 +224,7 @@ const SignupScreen = ({ navigation }: any) => {
             secureTextEntry
             placeholder="Confirm your password"
             error={errors.confirmPassword}
-            icon={<Lock size={20} color="#a1a1aa" />}
+            icon={<StyledLock size={20} color="#a1a1aa" />}
             containerClassName="mt-4"
           />
 
@@ -240,7 +240,7 @@ const SignupScreen = ({ navigation }: any) => {
             }}
             placeholder="Enter your gym name"
             error={errors.gymName}
-            icon={<Building2 size={20} color="#a1a1aa" />}
+            icon={<StyledBuilding2 size={20} color="#a1a1aa" />}
           />
 
           <Input
@@ -249,7 +249,7 @@ const SignupScreen = ({ navigation }: any) => {
             onChangeText={setGymAddress}
             placeholder="Enter your gym address"
             containerClassName="mt-4"
-            icon={<Building2 size={20} color="#a1a1aa" />}
+            icon={<StyledBuilding2 size={20} color="#a1a1aa" />}
           />
 
           {/* Gym Type Selector */}
@@ -310,7 +310,7 @@ const SignupScreen = ({ navigation }: any) => {
                 />
               ) : (
                 <View className="w-24 h-24 bg-muted rounded-lg items-center justify-center mb-2">
-                  <ImageIcon size={32} color="#a1a1aa" />
+                  <StyledImageIcon size={32} color="#a1a1aa" />
                 </View>
               )}
               <Text className="text-primary font-medium">
@@ -327,7 +327,7 @@ const SignupScreen = ({ navigation }: any) => {
                 onPress={addMembershipPlan}
                 className="bg-primary/20 px-3 py-2 rounded-lg flex-row items-center"
               >
-                <Plus size={16} color="#84cc16" />
+                <StyledPlus size={16} color="#84cc16" />
                 <Text className="text-primary font-bold ml-1">Add Plan</Text>
               </TouchableOpacity>
             </View>
@@ -341,7 +341,7 @@ const SignupScreen = ({ navigation }: any) => {
                       onPress={() => removeMembershipPlan(index)}
                       className="p-2"
                     >
-                      <Trash2 size={18} color="#ef4444" />
+                      <StyledTrash2 size={18} color="#ef4444" />
                     </TouchableOpacity>
                   )}
                 </View>

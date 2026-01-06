@@ -3,11 +3,11 @@ import { View, Text, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'r
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mail } from 'lucide-react-native';
-import { cssInterop } from 'nativewind';
+import { styled } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
-cssInterop(Mail, { className: { target: "style" } });
+const StyledMail = styled(Mail);
 
 const ForgotPasswordScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
@@ -75,7 +75,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
             autoCapitalize="none"
             keyboardType="email-address"
             error={error}
-            icon={<Mail size={20} color="#a1a1aa" />}
+            icon={<StyledMail size={20} color="#a1a1aa" />}
             placeholder="Enter your email"
           />
 
