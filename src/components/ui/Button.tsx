@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator, ViewStyle, TextStyle, StyleProp } from 'react-native';
 
 interface ButtonProps {
   onPress: () => void;
@@ -9,6 +9,7 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   className?: string;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -19,6 +20,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled = false,
   loading = false,
   className = '',
+  style,
 }) => {
   const getVariantClasses = () => {
     switch (variant) {
@@ -83,6 +85,7 @@ export const Button: React.FC<ButtonProps> = ({
       className={`rounded-xl items-center justify-center ${getVariantClasses()} ${getSizeClasses()} ${
         disabled ? 'opacity-50' : ''
       } ${className}`}
+      style={style}
     >
       {loading ? (
         <ActivityIndicator color={variant === 'outline' ? '#84cc16' : '#ffffff'} />

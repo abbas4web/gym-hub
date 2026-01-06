@@ -102,17 +102,17 @@ const LoginScreen = ({ navigation }: any) => {
               containerClassName="mt-4"
             />
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => navigation.navigate('ForgotPassword')}
               className="self-end mt-2"
             >
               <Text className="text-primary font-medium">Forgot Password?</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <Button
               onPress={handleLogin}
               loading={isSubmitting}
-              className="mt-6"
+              style={{ marginTop: 24 }}
             >
               Sign In
             </Button>
