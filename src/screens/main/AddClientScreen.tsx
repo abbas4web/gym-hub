@@ -361,7 +361,11 @@ const AddClientScreen = ({ navigation }: any) => {
           </Text>
         </View>
 
-        <ScrollView className="flex-1 px-6 pt-6" keyboardShouldPersistTaps="handled">
+        <ScrollView 
+          className="flex-1 px-6 pt-6" 
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 50 }}
+        >
           {/* STEP 1: Basic Details */}
           {currentStep === 1 && (
             <>

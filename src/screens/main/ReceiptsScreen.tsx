@@ -50,7 +50,7 @@ const ReceiptsScreen = ({ navigation }: any) => {
           )}
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={{ paddingBottom: 20 }}
           ListEmptyComponent={
             <View className="items-center justify-center py-20">
               <StyledReceiptIcon size={48} color="#a1a1aa" />
