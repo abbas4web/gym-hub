@@ -24,6 +24,7 @@ export interface Receipt {
   startDate: string;
   endDate: string;
   generatedAt: string; // ISO date
+  receipt_url?: string; // URL to PDF receipt
 }
 
 export interface MembershipPlan {

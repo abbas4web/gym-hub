@@ -39,9 +39,12 @@ const apiRequest = async (
   requiresAuth: boolean = true
 ) => {
   try {
-    const headers: any = {
-      'Content-Type': 'application/json',
-    };
+    const headers: any = {};
+    
+    // Only set JSON content type if body is NOT FormData
+    if (!(body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     if (requiresAuth) {
       const token = await getToken();
@@ -56,7 +59,7 @@ const apiRequest = async (
     };
 
     if (body && (method === 'POST' || method === 'PUT')) {
-      config.body = JSON.stringify(body);
+      config.body = body instanceof FormData ? body : JSON.stringify(body);
     }
 
     const response = await fetch(`${API_URL}${endpoint}`, config);

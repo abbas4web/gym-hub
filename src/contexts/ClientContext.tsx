@@ -8,7 +8,7 @@ interface ClientContextType {
   clients: Client[];
   receipts: Receipt[];
   isLoading: boolean;
-  addClient: (clientData: Omit<Client, 'id' | 'createdAt' | 'isActive'> & { endDate?: string; fee?: number }) => Promise<void>;
+  addClient: (clientData: Omit<Client, 'id' | 'createdAt' | 'isActive'> & { endDate?: string; fee?: number }) => Promise<any>;
   updateClient: (id: string, updates: Partial<Client>) => Promise<void>;
   deleteClient: (id: string) => Promise<void>;
   deleteReceipt: (id: string) => Promise<void>;
@@ -112,7 +112,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
       if (response.success) {
         // Transform client data from snake_case to camelCase
         const transformedClient = {
-          id: response.client.id,
+          id: response.client.id || response.client._id,
           name: response.client.name,
           phone: response.client.phone,
           email: response.client.email,
@@ -128,20 +128,24 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
         
         setClients(prev => [transformedClient, ...prev]);
         
+        let transformedReceipt: Receipt | undefined;
         if (response.receipt) {
           // Transform receipt data
-          const transformedReceipt = {
-            id: response.receipt.id,
-            clientId: response.receipt.client_id,
+          transformedReceipt = {
+            id: response.receipt.id || response.receipt._id,
+            clientId: response.receipt.client_id || response.receipt.clientId,
             clientName: response.receipt.client_name,
             amount: response.receipt.amount,
             membershipType: response.receipt.membership_type,
             startDate: response.receipt.start_date,
             endDate: response.receipt.end_date,
-            generatedAt: response.receipt.generated_at
+            generatedAt: response.receipt.generated_at,
+            receipt_url: response.receipt.receipt_url || response.receipt.url || response.receipt.link || response.receipt.pdf_url
           };
-          setReceipts(prev => [transformedReceipt, ...prev]);
+          setReceipts(prev => [transformedReceipt!, ...prev]);
         }
+
+        return { success: true, client: transformedClient, receipt: transformedReceipt };
       }
     } catch (error: any) {
       throw new Error(error.message || 'Failed to add client');

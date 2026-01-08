@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Linking, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Share2 } from 'lucide-react-native';
+import { ArrowLeft, Share2, Download } from 'lucide-react-native';
 import { styled } from 'nativewind';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -15,6 +15,7 @@ import CustomPopup from '@/components/CustomPopup';
 
 const StyledArrowLeft = styled(ArrowLeft);
 const StyledShare2 = styled(Share2);
+const StyledDownload = styled(Download);
 
 const ReceiptDetailScreen = ({ route, navigation }: any) => {
   const { receiptId } = route.params;
@@ -35,6 +36,17 @@ const ReceiptDetailScreen = ({ route, navigation }: any) => {
 
   const handleSharePDF = async () => {
     try {
+      if (receipt.receipt_url) {
+        const supported = await Linking.canOpenURL(receipt.receipt_url);
+        if (supported) {
+          await Linking.openURL(receipt.receipt_url);
+          return;
+        } else {
+          showError('Error', 'Cannot open this URL');
+          return;
+        }
+      }
+
       setIsGenerating(true);
       
       // Generate HTML with gym branding
@@ -82,7 +94,13 @@ const ReceiptDetailScreen = ({ route, navigation }: any) => {
           {isGenerating ? (
             <ActivityIndicator size="small" color="#84cc16" />
           ) : (
-            <StyledShare2 size={24} color="#84cc16" />
+            <>
+              {receipt.receipt_url ? (
+                <StyledDownload size={24} color="#84cc16" />
+              ) : (
+                <StyledShare2 size={24} color="#84cc16" />
+              )}
+            </>
           )}
         </TouchableOpacity>
       </View>

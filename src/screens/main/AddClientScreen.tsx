@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform, TouchableOpacity, Image } from 'react-native';
+import { View, Text, ScrollView, Alert, KeyboardAvoidingView, Platform, TouchableOpacity, Image, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { useClients } from '@/contexts/ClientContext';
+import { receiptAPI } from '@/services/api.service';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, Mail, Phone, Calendar, Camera, ArrowLeft } from 'lucide-react-native';
@@ -198,8 +199,12 @@ const AddClientScreen = ({ navigation }: any) => {
 
     if (!phone.trim()) {
       newErrors.phone = 'Phone is required';
-    } else if (!/^\d{10}$/.test(phone)) {
-      newErrors.phone = 'Phone must be exactly 10 digits';
+    } else {
+      // Phone validation (10 digits)
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!phoneRegex.test(phone.trim())) {
+        newErrors.phone = 'Please enter a valid 10-digit phone number';
+      }
     }
 
     if (email && !/\S+@\S+\.\S+/.test(email)) {
@@ -236,8 +241,12 @@ const AddClientScreen = ({ navigation }: any) => {
 
     if (!phone.trim()) {
       newErrors.phone = 'Phone number is required';
-    } else if (!/^\d{10}$/.test(phone)) {
-      newErrors.phone = 'Phone number must be exactly 10 digits';
+    } else {
+      // Phone validation (10 digits)
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!phoneRegex.test(phone.trim())) {
+        newErrors.phone = 'Please enter a valid 10-digit phone number';
+      }
     }
 
     if (email && !/\S+@\S+\.\S+/.test(email)) {
@@ -292,7 +301,7 @@ const AddClientScreen = ({ navigation }: any) => {
     }
 
     try {
-      await addClient({
+      const result = await addClient({
         name: name.trim(),
         phone: phone.trim(),
         email: email.trim() || undefined,
@@ -304,17 +313,61 @@ const AddClientScreen = ({ navigation }: any) => {
         fee,      // ← SEND THIS
       });
 
-      // Show different alert based on Aadhar status
-      if (adharPhoto) {
-        showSuccess('Success', 'Client added successfully with Active status!');
-        setTimeout(() => navigation.goBack(), 1500);
-      } else {
-        showSuccess(
-          'Client Added', 
-          'Client added successfully but Aadhar verification is pending. You can upload it later from client details.'
-        );
-        setTimeout(() => navigation.goBack(), 2000);
+      // AUTO-OPEN WHATSAPP LOGIC
+      // 1. Check if we have the URL immediately
+      let receiptUrl = (result as any)?.receipt?.receipt_url;
+      const receiptId = (result as any)?.receipt?.id;
+
+      // 2. If no URL but we have ID, try fetching the receipt details (Wait 500ms for backend to settle)
+      if (!receiptUrl && receiptId) {
+         try {
+           // Alert.alert('Status', 'Receipt URL missing. Attempting to fetch from server...');
+           // Short delay to allow backend PDF generation trigger
+           await new Promise(resolve => setTimeout(resolve, 1000));
+           const response = await receiptAPI.getById(receiptId);
+           // Unwrap: The API returns { success: true, receipt: {...} }
+           const receiptData = response.receipt || response;
+           
+           if (receiptData) {
+             receiptUrl = receiptData.receipt_url || receiptData.url || receiptData.link || receiptData.pdf_url;
+             
+             if (receiptUrl) {
+                console.log('Fetched missing receipt URL:', receiptUrl);
+             }
+           }
+         } catch (e: any) {
+           console.log('Failed to fetch receipt details:', e);
+           // Silent fail on connection error to avoid blocking flow
+         }
       }
+
+      if (receiptUrl) {
+        const cleanPhone = phone.replace(/\D/g, ''); 
+        const finalPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+        
+        const message = `Hello ${name}, welcome to Gym Hub! Here is your admission receipt: ${receiptUrl}`;
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/${finalPhone}?text=${encodedMessage}`;
+        
+        const supported = await Linking.canOpenURL(whatsappUrl);
+        if (supported) {
+           await Linking.openURL(whatsappUrl);
+           // Show toast and longer delay before going back so user sees the success state
+           showSuccess('Success', 'Client added! Opening WhatsApp...');
+           await new Promise(resolve => setTimeout(resolve, 1500));
+        } else {
+           Alert.alert('Error', 'WhatsApp is not installed or link is invalid: ' + whatsappUrl);
+        }
+      } else {
+         // Fallback if URL is still missing
+         if (adharPhoto) {
+            showSuccess('Success', 'Client added successfully!');
+         } else {
+            showSuccess('Client Added', 'Verification pending.');
+         }
+      }
+      
+      navigation.goBack();
     } catch (error: any) {
       console.error('Add client error:', error);
       showError('Error', error.message || 'Failed to add client. Please try again.');
@@ -414,20 +467,20 @@ const AddClientScreen = ({ navigation }: any) => {
 
           <Input
             label="Phone Number *"
-            value={phone}
             onChangeText={(text) => {
-              // Only allow numbers and max 10 digits
-              const cleaned = text.replace(/[^0-9]/g, '').slice(0, 10);
+              // Only allow digits
+              const cleaned = text.replace(/[^0-9]/g, '');
               setPhone(cleaned);
               setErrors({ ...errors, phone: undefined });
             }}
-            placeholder="10-digit contact number"
-            keyboardType="phone-pad"
+            placeholder="e.g. 9876543210"
+            keyboardType="numeric"
             maxLength={10}
             error={errors.phone}
             icon={<StyledPhone size={20} color="#a1a1aa" />}
-            containerClassName="mb-4"
+            containerClassName="mb-1"
           />
+          {/* Helper text removed as requested */}
 
           <Input
             label="Email (Optional)"
