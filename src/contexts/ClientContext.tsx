@@ -145,7 +145,12 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
           setReceipts(prev => [transformedReceipt!, ...prev]);
         }
 
-        return { success: true, client: transformedClient, receipt: transformedReceipt };
+        return { 
+          success: true, 
+          client: transformedClient, 
+          receipt: transformedReceipt,
+          whatsappMessage: response.whatsapp_message 
+        };
       }
     } catch (error: any) {
       throw new Error(error.message || 'Failed to add client');

@@ -6,7 +6,7 @@ import { useClients } from '@/contexts/ClientContext';
 import { receiptAPI } from '@/services/api.service';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Mail, Phone, Calendar, Camera, ArrowLeft } from 'lucide-react-native';
+import { User, Phone, Calendar, Camera, ArrowLeft } from 'lucide-react-native';
 import { styled } from 'nativewind';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -17,7 +17,7 @@ import { usePopup } from '@/hooks/usePopup';
 import CustomPopup from '@/components/CustomPopup';
 
 const StyledUser = styled(User);
-const StyledMail = styled(Mail);
+
 const StyledPhone = styled(Phone);
 const StyledCalendar = styled(Calendar);
 const StyledCamera = styled(Camera);
@@ -26,7 +26,7 @@ const StyledArrowLeft = styled(ArrowLeft);
 const AddClientScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
+
   const [photo, setPhoto] = useState<string | undefined>(undefined);
   const [adharPhoto, setAdharPhoto] = useState<string | undefined>(undefined);
   const [selectedPlanIndex, setSelectedPlanIndex] = useState<number | null>(null);
@@ -34,7 +34,7 @@ const AddClientScreen = ({ navigation }: any) => {
   const [customDuration, setCustomDuration] = useState('');
   const [customFee, setCustomFee] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
   const [currentStep, setCurrentStep] = useState(1); // 1 = Basic Details, 2 = Aadhar Upload
 
   const { addClient } = useClients();
@@ -191,7 +191,7 @@ const AddClientScreen = ({ navigation }: any) => {
   };
 
   const validate = () => {
-    const newErrors: { name?: string; phone?: string; email?: string } = {};
+    const newErrors: { name?: string; phone?: string } = {};
 
     if (!name.trim()) {
       newErrors.name = 'Name is required';
@@ -207,9 +207,7 @@ const AddClientScreen = ({ navigation }: any) => {
       }
     }
 
-    if (email && !/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Email is invalid';
-    }
+
 
     // Only validate custom fields when custom option is selected
     if (isCustom) {
@@ -233,7 +231,7 @@ const AddClientScreen = ({ navigation }: any) => {
 
   // Step 1 Validation
   const validateStep1 = (): string | null => {
-    const newErrors: { name?: string; phone?: string; email?: string } = {};
+    const newErrors: { name?: string; phone?: string } = {};
 
     if (!name.trim()) {
       newErrors.name = 'Name is required';
@@ -249,9 +247,7 @@ const AddClientScreen = ({ navigation }: any) => {
       }
     }
 
-    if (email && !/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Invalid email format';
-    }
+
 
     if (selectedPlanIndex === null && !isCustom) {
       return 'Please select a membership plan';
@@ -304,7 +300,7 @@ const AddClientScreen = ({ navigation }: any) => {
       const result = await addClient({
         name: name.trim(),
         phone: phone.trim(),
-        email: email.trim() || undefined,
+        email: undefined,
         photo,
         adharPhoto: adharPhoto,
         membershipType: membershipType as any, // Allow custom plan names
@@ -314,52 +310,54 @@ const AddClientScreen = ({ navigation }: any) => {
       });
 
       // AUTO-OPEN WHATSAPP LOGIC
-      // 1. Check if we have the URL immediately
+      
+      // 1. Get message directly from backend response (New logic)
+      let whatsappMessage = (result as any)?.whatsappMessage;
       let receiptUrl = (result as any)?.receipt?.receipt_url;
       const receiptId = (result as any)?.receipt?.id;
 
-      // 2. If no URL but we have ID, try fetching the receipt details (Wait 500ms for backend to settle)
-      if (!receiptUrl && receiptId) {
+      // 2. Fallback: If no message but we have ID, try fetching (Legacy/Safety)
+      if (!whatsappMessage && !receiptUrl && receiptId) {
          try {
-           // Alert.alert('Status', 'Receipt URL missing. Attempting to fetch from server...');
-           // Short delay to allow backend PDF generation trigger
            await new Promise(resolve => setTimeout(resolve, 1000));
            const response = await receiptAPI.getById(receiptId);
-           // Unwrap: The API returns { success: true, receipt: {...} }
            const receiptData = response.receipt || response;
            
            if (receiptData) {
              receiptUrl = receiptData.receipt_url || receiptData.url || receiptData.link || receiptData.pdf_url;
-             
-             if (receiptUrl) {
-                console.log('Fetched missing receipt URL:', receiptUrl);
-             }
            }
          } catch (e: any) {
            console.log('Failed to fetch receipt details:', e);
-           // Silent fail on connection error to avoid blocking flow
          }
       }
 
-      if (receiptUrl) {
+      // 3. Construct URL
+      // If we have the backend message, USE IT.
+      // If not, and we have a receipt URL, construct a fallback (shouldn't happen with new backend)
+      let finalMessage = whatsappMessage;
+      
+      if (!finalMessage && receiptUrl) {
+         // Fallback manual construction (only if backend didn't send message)
+         finalMessage = `Hello ${name}, welcome to Gym Hub! Here is your admission receipt: ${receiptUrl}`;
+      }
+
+      if (finalMessage) {
         const cleanPhone = phone.replace(/\D/g, ''); 
         const finalPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
         
-        const message = `Hello ${name}, welcome to Gym Hub! Here is your admission receipt: ${receiptUrl}`;
-        const encodedMessage = encodeURIComponent(message);
+        const encodedMessage = encodeURIComponent(finalMessage);
         const whatsappUrl = `https://wa.me/${finalPhone}?text=${encodedMessage}`;
         
         const supported = await Linking.canOpenURL(whatsappUrl);
         if (supported) {
            await Linking.openURL(whatsappUrl);
-           // Show toast and longer delay before going back so user sees the success state
            showSuccess('Success', 'Client added! Opening WhatsApp...');
            await new Promise(resolve => setTimeout(resolve, 1500));
         } else {
-           Alert.alert('Error', 'WhatsApp is not installed or link is invalid: ' + whatsappUrl);
+           Alert.alert('Error', 'WhatsApp is not installed or link is invalid.');
         }
       } else {
-         // Fallback if URL is still missing
+         // Fallback if neither message nor URL is found
          if (adharPhoto) {
             showSuccess('Success', 'Client added successfully!');
          } else {
@@ -482,20 +480,7 @@ const AddClientScreen = ({ navigation }: any) => {
           />
           {/* Helper text removed as requested */}
 
-          <Input
-            label="Email (Optional)"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setErrors({ ...errors, email: undefined });
-            }}
-            placeholder="Client email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            error={errors.email}
-            icon={<StyledMail size={20} color="#a1a1aa" />}
-            containerClassName="mb-6"
-          />
+
 
           <View className="mb-6">
             <Text className="text-foreground font-medium mb-3">Membership Plan</Text>
@@ -625,12 +610,7 @@ const AddClientScreen = ({ navigation }: any) => {
                     <Text className="text-muted-foreground">Phone</Text>
                     <Text className="text-foreground font-medium">{phone}</Text>
                   </View>
-                  {email && (
-                    <View className="flex-row justify-between">
-                      <Text className="text-muted-foreground">Email</Text>
-                      <Text className="text-foreground font-medium">{email}</Text>
-                    </View>
-                  )}
+
                   <View className="flex-row justify-between">
                     <Text className="text-muted-foreground">Membership</Text>
                     <Text className="text-foreground font-medium">{membershipType}</Text>
