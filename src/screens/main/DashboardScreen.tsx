@@ -34,8 +34,8 @@ const DashboardScreen = ({ navigation }: any) => {
   const { clients, isLoading } = useClients();
   const [showRevenue, setShowRevenue] = useState(false); // Hidden by default
 
-  const activeClients = clients.filter(c => c.isActive && !!c.adharPhoto);
-  const pendingClients = clients.filter(c => c.isActive && !c.adharPhoto);
+  const activeClients = clients.filter(c => c.isActive && !!c.terms_accepted);
+  const pendingClients = clients.filter(c => c.isActive && !c.terms_accepted);
   const expiredClients = clients.filter(c => !c.isActive);
   const totalRevenue = clients.reduce((sum, c) => sum + c.fee, 0);
   const expiringClients = getExpiringClients(clients, 7);

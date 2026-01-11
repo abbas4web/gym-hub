@@ -93,8 +93,8 @@ const ClientDetailScreen = ({ route, navigation }: any) => {
           <StyledArrowLeft size={24} color="#84cc16" />
         </TouchableOpacity>
         <View className="flex-row items-center gap-3">
-          {/* Show Pending if no Aadhar, otherwise show membership status */}
-          {!client.adharPhoto ? (
+          {/* Show Pending if terms not accepted, otherwise show membership status */}
+          {!client.terms_accepted ? (
             <Badge variant="warning">
               Pending
             </Badge>

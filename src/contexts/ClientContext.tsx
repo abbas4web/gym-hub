@@ -66,6 +66,8 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
           endDate: client.end_date,
           fee: client.fee,
           isActive: isClientActive(client.end_date),
+          terms_accepted: client.terms_accepted,
+          terms_accepted_at: client.terms_accepted_at,
           createdAt: client.created_at
         }));
         setClients(updatedClients);
@@ -123,6 +125,8 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
           endDate: response.client.end_date,
           fee: response.client.fee,
           isActive: response.client.is_active === 1,
+          terms_accepted: response.client.terms_accepted,
+          terms_accepted_at: response.client.terms_accepted_at,
           createdAt: response.client.created_at
         };
         
@@ -170,7 +174,9 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
           startDate: response.client.start_date || response.client.startDate,
           endDate: response.client.end_date || response.client.endDate,
           createdAt: response.client.created_at || response.client.createdAt,
-          isActive: response.client.is_active !== undefined ? response.client.is_active : response.client.isActive
+          isActive: response.client.is_active !== undefined ? response.client.is_active : response.client.isActive,
+          terms_accepted: response.client.terms_accepted,
+          terms_accepted_at: response.client.terms_accepted_at
         };
         
         setClients(prev => prev.map(c => c.id === id ? transformedClient : c));

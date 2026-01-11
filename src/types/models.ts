@@ -12,6 +12,8 @@ export interface Client {
   endDate: string; // ISO date
   fee: number;
   isActive: boolean;
+  terms_accepted?: boolean;
+  terms_accepted_at?: string;
   createdAt: string; // ISO date
 }
 

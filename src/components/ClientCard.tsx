@@ -53,7 +53,8 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
           </View>
         </View>
         {/* Show Pending if no Aadhar, otherwise show membership status */}
-        {!client.adharPhoto ? (
+        {/* Show Pending if terms not accepted, otherwise show membership status */}
+        {!client.terms_accepted ? (
           <Badge variant="warning">
             Pending
           </Badge>

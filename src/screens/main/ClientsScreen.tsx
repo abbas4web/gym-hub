@@ -32,9 +32,9 @@ const ClientsScreen = ({ navigation }: any) => {
     return filtered.filter(client => {
       switch (statusFilter) {
         case 'Active':
-          return client.isActive && !!client.adharPhoto;
+          return client.isActive && !!client.terms_accepted;
         case 'Pending':
-          return client.isActive && !client.adharPhoto;
+          return client.isActive && !client.terms_accepted;
         case 'Expired':
           return !client.isActive;
         default:
