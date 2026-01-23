@@ -143,7 +143,7 @@ const SettingsScreen = ({ navigation }: any) => {
         )}
 
         {/* Subscription */}
-        <Card className="mb-6">
+        {/* <Card className="mb-6">
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center">
               <StyledCreditCard size={20} color="#84cc16" />
@@ -165,10 +165,10 @@ const SettingsScreen = ({ navigation }: any) => {
               Upgrade Plan
             </Button>
           )}
-        </Card>
+        </Card> */}
 
         {/* Theme Toggle - Placeholder */}
-        <Card className="mb-6">
+        {/* <Card className="mb-6">
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center">
               <StyledMoon size={20} color="#84cc16" />
@@ -176,7 +176,7 @@ const SettingsScreen = ({ navigation }: any) => {
             </View>
             <Text className="text-muted-foreground text-sm">Always On</Text>
           </View>
-        </Card>
+        </Card> */}
 
         {/* Logout */}
         <Button
