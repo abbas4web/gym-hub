@@ -223,3 +223,19 @@ export const subscriptionAPI = {
     return await apiRequest('/subscription/can-add-client', 'GET');
   },
 };
+
+// Worker API
+export const workerAPI = {
+  getAll: async () => {
+    return await apiRequest('/workers', 'GET');
+  },
+
+  create: async (name: string, email: string, password: string) => {
+    return await apiRequest('/workers', 'POST', { name, email, password });
+  },
+
+  delete: async (id: string) => {
+    return await apiRequest(`/workers/${id}`, 'DELETE');
+  },
+};
+

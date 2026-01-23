@@ -126,6 +126,22 @@ const SettingsScreen = ({ navigation }: any) => {
           </Card>
         )}
 
+        {/* Manage Staff - Only for Owners */}
+        {user?.role !== 'worker' && (
+          <Card className="mb-6">
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ManageStaff')}
+              className="flex-row items-center justify-between"
+            >
+              <View className="flex-row items-center">
+                <User size={20} color="#84cc16" />
+                <Text className="text-foreground font-bold ml-2">Manage Staff</Text>
+              </View>
+              <Text className="text-primary font-medium">→</Text>
+            </TouchableOpacity>
+          </Card>
+        )}
+
         {/* Subscription */}
         <Card className="mb-6">
           <View className="flex-row items-center justify-between mb-3">

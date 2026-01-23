@@ -85,6 +85,18 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onPress }) => {
           </Text>
         </View>
       </View>
+
+      {/* Added By Badge */}
+      <View className="mt-3 pt-3 border-t border-border flex-row justify-between items-center">
+        {client.created_by && (
+          <Text className="text-muted-foreground text-xs">
+            Added by {client.created_by.name}
+          </Text>
+        )}
+        <Text className="text-muted-foreground text-xs">
+          Created on {formatDate(client.createdAt)}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 };

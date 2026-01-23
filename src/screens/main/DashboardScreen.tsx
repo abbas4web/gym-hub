@@ -100,25 +100,27 @@ const DashboardScreen = ({ navigation }: any) => {
           <StatCard title="Pending" value={pendingClients.length} icon={StyledClock} color="#f59e0b" />
           <StatCard title="Expired" value={expiredClients.length} icon={StyledUserX} color="#ef4444" />
           
-          {/* Revenue Card with Hide/Show Toggle */}
-          <Card className="flex-1 mr-2 mb-2 min-w-[150px]">
-            <View className="flex-row justify-between items-start mb-2">
-              <View className="flex-row items-center gap-2">
-                <StyledIndianRupee size={20} color="#84cc16" />
-                <Text className="text-xs text-muted-foreground">Revenue</Text>
+          {/* Revenue Card with Hide/Show Toggle - Only for Owners */}
+          {user?.role !== 'worker' && (
+            <Card className="flex-1 mr-2 mb-2 min-w-[150px]">
+              <View className="flex-row justify-between items-start mb-2">
+                <View className="flex-row items-center gap-2">
+                  <StyledIndianRupee size={20} color="#84cc16" />
+                  <Text className="text-xs text-muted-foreground">Revenue</Text>
+                </View>
+                <TouchableOpacity onPress={() => setShowRevenue(!showRevenue)}>
+                  {showRevenue ? (
+                    <StyledEye size={16} color="#A1A1AA" />
+                  ) : (
+                    <StyledEyeOff size={16} color="#A1A1AA" />
+                  )}
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity onPress={() => setShowRevenue(!showRevenue)}>
-                {showRevenue ? (
-                  <StyledEye size={16} color="#A1A1AA" />
-                ) : (
-                  <StyledEyeOff size={16} color="#A1A1AA" />
-                )}
-              </TouchableOpacity>
-            </View>
-            <Text className="text-2xl font-bold text-foreground">
-              {showRevenue ? formatCurrency(totalRevenue) : '••••••'}
-            </Text>
-          </Card>
+              <Text className="text-2xl font-bold text-foreground">
+                {showRevenue ? formatCurrency(totalRevenue) : '••••••'}
+              </Text>
+            </Card>
+          )}
         </View>
 
         {/* Add Client Button - Centered and Larger */}

@@ -68,7 +68,8 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
           isActive: isClientActive(client.end_date),
           terms_accepted: client.terms_accepted,
           terms_accepted_at: client.terms_accepted_at,
-          createdAt: client.created_at
+          createdAt: client.created_at,
+          created_by: client.created_by
         }));
         setClients(updatedClients);
       }
@@ -127,7 +128,8 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
           isActive: response.client.is_active === 1,
           terms_accepted: response.client.terms_accepted,
           terms_accepted_at: response.client.terms_accepted_at,
-          createdAt: response.client.created_at
+          createdAt: response.client.created_at,
+          created_by: response.client.created_by
         };
         
         setClients(prev => [transformedClient, ...prev]);
@@ -176,7 +178,8 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
           createdAt: response.client.created_at || response.client.createdAt,
           isActive: response.client.is_active !== undefined ? response.client.is_active : response.client.isActive,
           terms_accepted: response.client.terms_accepted,
-          terms_accepted_at: response.client.terms_accepted_at
+          terms_accepted_at: response.client.terms_accepted_at,
+          created_by: response.client.created_by
         };
         
         setClients(prev => prev.map(c => c.id === id ? transformedClient : c));

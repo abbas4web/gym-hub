@@ -30,6 +30,7 @@ import NotificationCenterScreen from '@/screens/main/NotificationCenterScreen';
 import AddClientScreen from '@/screens/main/AddClientScreen';
 import EditClientScreen from '@/screens/main/EditClientScreen';
 import SubscriptionScreen from '@/screens/main/SubscriptionScreen';
+import ManageStaffScreen from '@/screens/main/ManageStaffScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -123,6 +124,10 @@ const Navigation = () => {
             <Stack.Screen 
               name="NotificationCenter" 
               component={NotificationCenterScreen}
+            />
+            <Stack.Screen 
+              name="ManageStaff" 
+              component={ManageStaffScreen}
             />
           </>
         ) : (
